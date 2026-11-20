@@ -894,6 +894,20 @@ function analysePages(tokenizer, pages, onProgress) {
   for (const w of map.values()) w.kana = kataToHira(tokenizer.tokenize(w.jp).map(t => t.reading || t.surface_form).join(''));
   return [...map.values()].sort((a, b) => b.n - a.n);
 }
+// même chose, mais rend la main au navigateur entre les pages (la page ne gèle pas, la progression s'affiche)
+async function analysePagesAsync(tokenizer, pages, onProgress) {
+  const out = [], tick = () => new Promise(r => setTimeout(r, 0));
+  let all = null;
+  for (let pi = 0; pi < pages.length; pi++) {
+    const one = pages.map((p, i) => i === pi ? p : { blocks: [] });   // n'analyse que la page pi
+    const ws = analysePages(tokenizer, one);
+    if (!all) all = new Map();
+    for (const w of ws) { const o = all.get(w.jp); if (!o) all.set(w.jp, w); else { o.n += w.n; o.f = Math.min(o.f, w.f); for (const e of w.ex) if (o.ex.length < 3) o.ex.push(e); } }
+    if (onProgress) onProgress(pi + 1, pages.length);
+    await tick();
+  }
+  return [...(all || new Map()).values()].sort((a, b) => b.n - a.n);
+}
 const blockText = b => b.t ? b.t.map(x => x[0]).join('') : (b.text || '');
 
 
@@ -903,20 +917,65 @@ const KUROMOJI_SRC = [
   { js: 'https://unpkg.com/kuromoji@0.1.2/build/kuromoji.js', dict: 'https://unpkg.com/kuromoji@0.1.2/dict/' }
 ];
 const JSZIP_SRC = ['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js', 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'];
-function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => { s.remove(); rej(new Error('script ' + src)); }; document.head.appendChild(s); }); }
+function loadScript(src, ms = 30000) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src;
+    const t = setTimeout(() => { s.remove(); rej(new Error('délai dépassé ' + src)); }, ms);
+    s.onload = () => { clearTimeout(t); res(); }; s.onerror = () => { clearTimeout(t); s.remove(); rej(new Error('script ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+// Téléchargement avec compteur d'octets ; abandonne si plus rien n'arrive pendant 25 s
+async function fetchBytes(url, onBytes, stallMs = 25000) {
+  const ctl = new AbortController(); let timer;
+  const arm = () => { clearTimeout(timer); timer = setTimeout(() => ctl.abort(), stallMs); };
+  arm();
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onBytes(b.byteLength); return b; }
+    const rd = r.body.getReader(), parts = []; let n = 0;
+    for (;;) { arm(); const { done, value } = await rd.read(); if (done) break; parts.push(value); n += value.length; onBytes(value.length); }
+    const out = new Uint8Array(n); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+    return out.buffer;
+  } finally { clearTimeout(timer); }
+}
+const KDICT = { 'base.dat.gz': 3956825, 'check.dat.gz': 3111633, 'tid.dat.gz': 1605820, 'tid_pos.dat.gz': 5916009, 'tid_map.dat.gz': 1485576, 'cc.dat.gz': 1692067, 'unk.dat.gz': 10512, 'unk_pos.dat.gz': 10540, 'unk_map.dat.gz': 1190, 'unk_char.dat.gz': 306, 'unk_compat.dat.gz': 338, 'unk_invoke.dat.gz': 1140 };
+const mb = n => (n / 1048576).toFixed(1).replace('.', ',');
 let tokenizerPromise = null;
-function getTokenizer() {
+// Le dictionnaire du découpeur (≈ 18 Mo) est téléchargé une seule fois, puis gardé sur l'appareil (IndexedDB).
+function getTokenizer(onStatus = () => { }) {
   if (tokenizerPromise) return tokenizerPromise;
   tokenizerPromise = (async () => {
-    let last;
-    for (const src of KUROMOJI_SRC) {
-      try {
-        if (!window.kuromoji) await loadScript(src.js);
-        return await new Promise((res, rej) => kuromoji.builder({ dicPath: src.dict }).build((err, tk) => err ? rej(err) : res(tk)));
-      } catch (e) { last = e; }
+    const files = Object.keys(KDICT), total = Object.values(KDICT).reduce((a, b) => a + b, 0), bufs = new Map();
+    let got = 0; const show = () => onStatus(`Dictionnaire japonais : ${mb(got)} / ${mb(total)} Mo (une seule fois par appareil)…`);
+    for (const f of files) { const b = await IDB.get('imgs', 'kuromoji:' + f).catch(() => null); if (b) { bufs.set(f, b); got += KDICT[f]; } }
+    if (bufs.size < files.length) show();
+    for (const f of files) {
+      if (bufs.has(f)) continue;
+      let last;
+      for (const src of KUROMOJI_SRC) {
+        let part = 0;
+        try { const b = await fetchBytes(src.dict + f, n => { part += n; got += n; show(); }); bufs.set(f, b); IDB.put('imgs', b, 'kuromoji:' + f).catch(() => { }); last = null; break; }
+        catch (e) { got -= part; last = e; }
+      }
+      if (last) throw last;
     }
-    tokenizerPromise = null; throw last || new Error('dictionnaire introuvable');
+    onStatus('Préparation du dictionnaire japonais…'); await new Promise(r => setTimeout(r, 30));
+    if (!window.kuromoji) { let ok = false; for (const src of KUROMOJI_SRC) { try { await loadScript(src.js); ok = true; break; } catch (e) { } } if (!ok) throw new Error('kuromoji.js'); }
+    // kuromoji lit ses fichiers par XHR : on lui sert ceux qu'on a déjà, depuis la mémoire
+    const urls = new Map([...bufs].map(([f, b]) => [f, URL.createObjectURL(new Blob([b]))]));
+    const open = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (m, url, ...rest) { const k = /^kdict\/(.+)$/.exec(String(url)); return open.call(this, m, k && urls.has(k[1]) ? urls.get(k[1]) : url, ...rest); };
+    try {
+      return await new Promise((res, rej) => {
+        const t = setTimeout(() => rej(new Error('délai dépassé')), 120000);
+        kuromoji.builder({ dicPath: 'kdict/' }).build((err, tk) => { clearTimeout(t); err ? rej(err) : res(tk); });
+      });
+    } catch (e) { await IDB.delRange('imgs', 'kuromoji:', 'kuromoji:\uffff').catch(() => { }); throw e; }   // copie abîmée : on retéléchargera
+    finally { XMLHttpRequest.prototype.open = open; urls.forEach(u => URL.revokeObjectURL(u)); }
   })();
+  tokenizerPromise.catch(() => { tokenizerPromise = null; });
   return tokenizerPromise;
 }
 async function getJSZip() {
@@ -1317,11 +1376,11 @@ async function handleFiles(fileList, intoVol) {
 
 async function createVolume(pages, title, imgs) {
   if (!pages.some(p => p.blocks.length)) return setStatus('Aucun texte japonais trouvé.', true);
-  setStatus('Chargement du dictionnaire japonais (≈ 12 Mo, seulement la première fois)…');
+  setStatus('Chargement du dictionnaire japonais…');
   let tk;
-  try { tk = await getTokenizer(); } catch (e) { return setStatus('Impossible de charger le découpeur de mots. Vérifie ta connexion internet et réessaie.', true); }
+  try { tk = await getTokenizer(m => setStatus(m)); } catch (e) { return setStatus('Le dictionnaire japonais n\'a pas pu se télécharger (connexion, VPN ou bloqueur de pubs ?). Ce qui est déjà téléchargé est gardé : réimporte le volume pour reprendre.', true); }
   setStatus('Analyse du texte…'); await new Promise(r => setTimeout(r, 30));
-  const words = analysePages(tk, pages).map(w => ({ jp: w.jp, kana: w.kana, n: w.n, f: w.f, ex: w.ex, fr: '' }));
+  const words = (await analysePagesAsync(tk, pages, (i, n) => setStatus(`Analyse du texte : page ${i} / ${n}…`))).map(w => ({ jp: w.jp, kana: w.kana, n: w.n, f: w.f, ex: w.ex, fr: '' }));
   const prev = new Map(); LIB.forEach(v => v.words.forEach(w => { if (w.fr) prev.set(w.jp, w.fr); if (w.ign) prev.set('!' + w.jp, 1); }));
   words.forEach(w => { if (prev.has(w.jp)) w.fr = prev.get(w.jp); if (prev.has('!' + w.jp)) w.ign = true; });
   const v = { id: Date.now(), title, date: Date.now(), hasImg: 0, last: 0, pages, words };
