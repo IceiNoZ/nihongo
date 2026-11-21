@@ -2109,7 +2109,10 @@ function wordPop(v, p, bi, ti, anchor) {
   const text = blockText(b), off = b.t.slice(0, ti).reduce((a, x) => a + x[0].length, 0);
   const pop = $('wPop');
   let extra = '', looking = false;
-  if (!w && !smallWord(t[0]) && DICTS.length && /[぀-ヿ一-鿿]/.test(t[0])) {   // pas dans la liste : on cherche quand même dans le dictionnaire
+  if (w && !meaning(w) && DICTS.length) {   // sens manquant : nouvelle recherche (ex. dictionnaire importé après le tome)
+    looking = true;
+    lookupMany([w]).then(f => { const g = f.get(w.jp); looking = false; if (g) { w.d = g; saveVol(v); } if (pop.classList.contains('show') && anchor.classList.contains('sel')) { draw(); place(); } }, () => { looking = false; });
+  } else if (!w && !smallWord(t[0]) && DICTS.length && /[぀-ヿ一-鿿]/.test(t[0])) {   // pas dans la liste : on cherche quand même dans le dictionnaire
     looking = true;
     lookupMany([{ jp: t[0], kana: t[1] || '' }]).then(f => { extra = f.get(t[0]) || ''; looking = false; if (pop.classList.contains('show') && anchor.classList.contains('sel')) { draw(); place(); } }, () => { looking = false; });
   }
@@ -2119,7 +2122,7 @@ function wordPop(v, p, bi, ti, anchor) {
     const m = sw && dm ? `${sw} ; ${dm}` : (sw || dm);
     pop.innerHTML = `<div class="wp-head"><b class="wp-jp kh">${esc(jp)}</b>${kana && kana !== jp ? `<span class="wp-rd">${esc(kana)}</span>` : ''}<span class="wp-ro">${esc(romajiOf(kataToHira(kana || jp)))}</span><button class="say" data-say="${esc(jp)}">🔊</button></div>
       ${w && t[0] !== w.jp ? `<div class="wp-form">dans la bulle : <span class="jp">${esc(t[0])}</span></div>` : ''}
-      <div class="wp-fr">${m ? esc(m.split(/[;；]/).slice(0, 3).join(' ;')) : w ? `<span class="muted">${DICTS.length ? 'pas trouvé dans ton dictionnaire (le dictionnaire anglais est plus complet)' : 'pas de sens (importe un dictionnaire)'}</span>` : `<span class="muted">${looking ? 'recherche…' : 'petit mot de grammaire : il se comprend avec le reste de la phrase (touche les mots voisins ou « Toute la bulle »)'}</span>`}</div>
+      <div class="wp-fr">${m ? esc(m.split(/[;；]/).slice(0, 3).join(' ;')) : w ? `<span class="muted">${looking ? 'recherche…' : DICTS.length ? 'pas trouvé dans ton dictionnaire (le dictionnaire anglais est plus complet)' : 'pas de sens (importe un dictionnaire)'}</span>` : `<span class="muted">${looking ? 'recherche…' : 'petit mot de grammaire : il se comprend avec le reste de la phrase (touche les mots voisins ou « Toute la bulle »)'}</span>`}</div>
       ${!w && m ? '<div class="wp-form">mot courant, hors de ta liste à apprendre</div>' : ''}
       <div id="wpGram"></div>
       <div class="wp-btns">${w ? (st === 'done' ? `<span class="state done">connu</span><button class="small-btn" data-wp="unk">↺ À revoir</button>`
