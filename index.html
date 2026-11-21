@@ -320,6 +320,17 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .bub .tk.sel{background:var(--accent)!important;color:#fff}
 .pjump{background:none;border:1px solid transparent;border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;padding:.4rem .6rem;cursor:pointer}
 .pjump:hover{border-color:var(--border);color:var(--text)}.pjump b{color:var(--text);font-size:.95rem}
+.reader-nav.bottom{position:sticky;bottom:0;z-index:4;margin:.5rem 0 0;padding:.4rem 0 calc(.4rem + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 35%)}
+.rfull-bar{display:none}
+body.rfull{overflow:hidden}
+#rfullHost{display:none}
+body.rfull #rfullHost{display:block;position:fixed;inset:0;background:#000;z-index:48}
+body.rfull #rfullHost .page-wrap{position:absolute;inset:0;margin:auto;width:min(100vw,calc(100dvh * var(--ar,0.7)));max-height:100dvh;border-radius:0}
+body.rfull .rfull-bar{display:flex;position:fixed;z-index:51;left:50%;transform:translateX(-50%);bottom:calc(.6rem + env(safe-area-inset-bottom));gap:.3rem;align-items:center;background:rgba(10,10,18,.82);border:1px solid var(--border);border-radius:999px;padding:.2rem .35rem;opacity:0;pointer-events:none;transition:opacity .2s}
+body.rfull.rfull-ui .rfull-bar{opacity:1;pointer-events:auto}
+.rfull-bar button{background:none;border:0;color:var(--text);font-size:1.3rem;padding:.25rem .7rem;cursor:pointer}.rfull-bar button:disabled{opacity:.3}
+.rfull-bar span{font-family:var(--mono);font-size:.75rem;color:var(--muted);min-width:4.5rem;text-align:center}
+body.rfull .sheet{z-index:60}
 .pjump-row{display:flex;align-items:center;gap:.5rem;margin:-.1rem 0 .6rem}.pjump-row.hidden{display:none}
 .pjump-row input[type=range]{flex:1;accent-color:var(--accent)}.pjump-row .type-input{flex:0 0 4.6rem;width:4.6rem;min-width:0;font-size:.9rem;padding:.35rem .4rem;text-align:center}
 .reader-acts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
@@ -386,6 +397,7 @@ ruby rt.ro{font-family:var(--mono);font-size:.42em;letter-spacing:0}
   <main id="view"></main>
 </div>
 
+<div id="rfullHost"></div>
 <div class="wpop" id="wPop"></div>
 <div class="toast" id="toast"></div>
 <div class="sheet" id="sheet"><button class="sheet-close" onclick="closeSheet()">✕</button><div id="sheetContent"></div></div>
@@ -889,7 +901,7 @@ function act(a) {
 }
 let DAILY = false;
 function render() {
-  stopTimer(); hidePop();
+  stopTimer(); hidePop(); if (typeof exitFull === 'function') exitFull();
   if (S.tab !== 'manga' || DAILY) { const bg = $('mangaBg'); if (bg) bg.classList.remove('show'); }
   document.body.dataset.tab = DAILY ? 'phrases' : S.tab;
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', !DAILY && b.dataset.tab === S.tab));
@@ -1803,6 +1815,7 @@ async function createVolume(pages, title, imgs) {
 
 function renderVolume(v) {
   M.go = null;
+  if (M.view !== 'read' || !M.full) exitFull();
   const s = volStats(v);
   $('view').innerHTML = `
     <div class="vol-head"><button class="small-btn" id="back">←</button><h2>${esc(v.title)}</h2></div>
@@ -1956,10 +1969,12 @@ function renderPage(v) {
   $('mBody').innerHTML = `
     <div class="reader-nav"><button class="btn ghost" id="pPrev" ${p === 0 ? 'disabled' : ''}>‹</button><button class="pjump" id="pJump" title="Aller à une page">page <b>${p + 1}</b> / ${n} ▾</button><button class="btn ghost" id="pNext" ${p >= n - 1 ? 'disabled' : ''}>›</button></div>
     <div class="pjump-row hidden" id="pJumpRow"><input type="range" id="pRange" min="1" max="${n}" value="${p + 1}"><input type="number" class="type-input" id="pNum" min="1" max="${n}" value="${p + 1}" inputmode="numeric"><button class="small-btn ok" id="pGo">Aller</button></div>
-    <div class="page-wrap" id="pageWrap" ${pg.w ? `style="aspect-ratio:${pg.w}/${pg.h}"` : ''}><img id="pageImg" alt="page ${p + 1}">${boxes}</div>
+    <div class="page-wrap" id="pageWrap" ${pg.w ? `style="aspect-ratio:${pg.w}/${pg.h};--ar:${(pg.w / pg.h).toFixed(4)}"` : ''}><img id="pageImg" alt="page ${p + 1}">${boxes}</div>
+    <div class="reader-nav bottom"><button class="btn ghost" id="pPrev2" ${p === 0 ? 'disabled' : ''}>‹</button><button class="pjump" id="pFull" title="Lecture plein écran">⛶ plein écran</button><button class="btn ghost" id="pNext2" ${p >= n - 1 ? 'disabled' : ''}>›</button></div>
+    <div class="rfull-bar"><button id="fPrev" ${p === 0 ? 'disabled' : ''}>‹</button><span>${p + 1} / ${n}</span><button id="fNext" ${p >= n - 1 ? 'disabled' : ''}>›</button><button id="fExit" title="Quitter le plein écran">✕</button></div>
     <div class="reader-acts"><button class="small-btn ok" id="pDone"></button><button class="small-btn" id="pPrep">📚 Préparer les 10 pages suivantes</button>
       <button class="small-btn" id="pAuto" title="Ajouter automatiquement à tes révisions les mots que tu touches">${S.autoAdd === false ? '＋ auto : non' : '＋ auto : oui'}</button></div>
-    <div class="tip" style="margin-top:.6rem">Touche une bulle pour afficher son texte, puis <b>touche un mot</b> : lecture, sens et conjugaison. Les mots que tu touches partent dans tes révisions (＋ auto). « ✓ Page comprise » marque les autres nouveaux mots de la page comme connus. Glisse ou ← → pour tourner les pages.</div>`;
+    <div class="tip" style="margin-top:.6rem">Touche une bulle pour afficher son texte, puis <b>touche un mot</b> : lecture, sens et conjugaison. Les mots que tu touches partent dans tes révisions (＋ auto). « ✓ Page comprise » marque les autres nouveaux mots de la page comme connus. Pour tourner les pages : touche le <b>bord gauche</b> de l'image (suivante) ou le <b>bord droit</b> (précédente), glisse, ou ← →. <b>⛶ plein écran</b> : la page tient dans l'écran, idéal sur iPhone.</div>`;
   pageURL(v, p).then(u => { const im = $('pageImg'); if (im && u) im.src = u; });
   pageURL(v, p + 1);
   const go = d => { const np = Math.min(Math.max(0, p + d), n - 1); if (np === p) return; M.page = np; v.last = np; saveVol(v); hideSheet(); hideWordPop(); renderVolume(v); };
@@ -1977,7 +1992,19 @@ function renderPage(v) {
     if (!el.classList.contains('on')) return activateBubble(v, p, bi, el);
     if (tk) wordPop(v, p, bi, +tk.dataset.ti, tk); else { hideWordPop(); openSheet(v, p, bi); }
   });
-  $('pageWrap').addEventListener('click', e => { if (!e.target.closest('.bub')) { deactivateBubbles(); hideWordPop(); } });
+  // toucher hors bulle : ferme ce qui est ouvert, sinon tourne la page (gauche = suivante, comme un manga)
+  $('pageWrap').addEventListener('click', e => {
+    if (e.target.closest('.bub')) return;
+    const open = document.querySelector('.bub.on') || ($('wPop') && $('wPop').classList.contains('show'));
+    if (open) { deactivateBubbles(); hideWordPop(); return; }
+    const r = $('pageWrap').getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+    if (x < .33) go(1); else if (x > .67) go(-1); else if (document.body.classList.contains('rfull')) document.body.classList.toggle('rfull-ui');
+  });
+  $('pPrev2').onclick = () => go(-1); $('pNext2').onclick = () => go(1);
+  $('fPrev').onclick = () => go(-1); $('fNext').onclick = () => go(1);
+  $('pFull').onclick = () => { M.full = true; document.body.classList.add('rfull', 'rfull-ui'); renderVolume(v); };
+  $('fExit').onclick = () => { exitFull(); renderVolume(v); };
+  if (M.full) { document.body.classList.add('rfull'); const h = $('rfullHost'); h.innerHTML = ''; h.append($('pageWrap'), document.querySelector('#mBody .rfull-bar')); }
   const pdl = () => { const nw = pageNewWords(v, p); $('pDone').textContent = nw.length ? `✓ Page comprise (${nw.length} nouveau${nw.length > 1 ? 'x' : ''} mot${nw.length > 1 ? 's' : ''} → connu${nw.length > 1 ? 's' : ''})` : '✓ Page comprise →'; };
   pdl(); M.pdl = pdl;
   $('pDone').onclick = () => {
@@ -2036,6 +2063,7 @@ function openSheet(v, p, bi) {
 function hideSheet() { const s = $('sheet'); if (s) s.classList.remove('show'); }
 function closeSheet() { hideSheet(); if (M.sheetDirty) { M.sheetDirty = false; const v = LIB.find(x => x.id === M.vol); if (v && S.tab === 'manga') { const y = scrollY; renderVolume(v); scrollTo(0, y); } } }
 function hidePop() { hideSheet(); hideWordPop(); }
+function exitFull() { if (typeof M !== 'undefined') M.full = false; document.body.classList.remove('rfull', 'rfull-ui'); const h = $('rfullHost'); if (h) h.innerHTML = ''; }
 
 // ── Mots touchés directement dans les bulles de la page ──
 const PARTICLES = { 'は': 'thème (« quant à… »)', 'が': 'sujet / « mais »', 'を': 'complément d\'objet', 'に': 'à, vers, dans (but, moment, lieu)', 'で': 'lieu de l\'action / moyen (« avec »)', 'と': 'et / avec / citation', 'の': 'de (possession) / transforme en nom', 'も': 'aussi / même', 'へ': 'vers', 'から': 'depuis / parce que', 'まで': 'jusqu\'à', 'より': 'que (comparaison) / depuis', 'か': 'question / ou', 'ね': 'n\'est-ce pas ? (connivence)', 'よ': 'je te le dis (affirmation)', 'な': 'exclamation / « ne… pas ! » (après un verbe)', 'ぞ': 'affirmation forte (masculin)', 'ぜ': 'allez ! (masculin, familier)', 'わ': 'affirmation douce', 'さ': 'tu vois / eh bien', 'って': 'citation (« il paraît », « ce qu\'on appelle »)', 'けど': 'mais / bien que', 'けれど': 'mais / bien que', 'のに': 'alors que (regret, reproche)', 'ので': 'parce que', 'し': 'et en plus', 'ば': 'si (condition)', 'でも': 'même / mais', 'しか': 'seulement (avec une négation)', 'だけ': 'seulement', 'ばかり': 'rien que / venir de', 'など': 'etc.', 'や': 'et (liste incomplète)', 'ぐらい': 'environ', 'くらい': 'environ', 'ほど': 'au point de / environ', 'かな': 'je me demande…', 'かしら': 'je me demande… (féminin)', 'だ': 'être (copule)', 'です': 'être (poli)', 'じゃ': 'eh bien / = では', 'ちゃ': '= ては' };
@@ -2115,7 +2143,7 @@ function toast(msg, action, fn) {
   if (action) t.querySelector('button').onclick = () => { t.classList.remove('show'); fn(); };
 }
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeSheet();
+  if (e.key === 'Escape') { if (!$('sheet').classList.contains('show') && document.body.classList.contains('rfull')) { exitFull(); const v = LIB.find(x => x.id === M.vol); if (v) renderVolume(v); } closeSheet(); }
   if (S.tab === 'manga' && M.view === 'read' && M.go && !e.target.matches('input, textarea')) { if (e.key === 'ArrowRight') M.go(1); if (e.key === 'ArrowLeft') M.go(-1); }
 });
 
