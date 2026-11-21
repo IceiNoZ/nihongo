@@ -301,6 +301,8 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .due{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;font-size:.55rem;font-weight:700;border-radius:99px;padding:.1rem .32rem;font-family:var(--mono)}
 .steps{font-family:var(--sans);font-size:.82rem;line-height:1.55;display:flex;flex-direction:column;gap:.55rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.8rem .9rem}
 .steps code{font-family:var(--mono);color:var(--accent);font-size:.78rem}
+.lib-title{display:flex;align-items:center;justify-content:space-between}.lib-title .small-btn{letter-spacing:0;text-transform:none}
+.btn.sel{border-color:var(--accent);color:var(--accent)}
 .bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:.4rem;margin-top:.6rem}
 .bg-thumb{aspect-ratio:.7;border-radius:6px;border:2px solid var(--border);background:var(--surface) center/cover;cursor:pointer;position:relative}
 .bg-thumb.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--glow)}
@@ -1635,6 +1637,32 @@ async function bgURL(v) {
   }
   return pageURL(v, v.bg && v.bg.type === 'page' ? v.bg.i : 0);
 }
+// Fond de la bibliothèque : auto (dernier tome ouvert), un tome choisi, ton image, ou rien
+async function setLibBg() {
+  const pref = load('nihongo_libbg', { type: 'auto' }), bg = $('mangaBg'); if (!bg) return;
+  if (pref.type === 'none') return bg.classList.remove('show');
+  if (pref.type === 'custom') {
+    let u = URLS.get('lib:bg'); if (!u) { const b = await IDB.get('imgs', 'lib:bg').catch(() => null); if (b) { u = URL.createObjectURL(b); URLS.set('lib:bg', u); } }
+    if (u && S.tab === 'manga' && M.vol == null) { bg.style.backgroundImage = `url("${u}")`; bg.classList.add('show'); return; }
+  }
+  const last = load('nihongo_lastvol', null);
+  const v = (pref.type === 'vol' && LIB.find(x => x.id === pref.id && hasImages(x))) || LIB.find(x => x.id === last && hasImages(x)) || LIB.find(hasImages);
+  return setBg(v);
+}
+function openLibBgPicker() {
+  const pref = load('nihongo_libbg', { type: 'auto' }), vols = LIB.filter(hasImages);
+  $('bgContent').innerHTML = `<div class="tip">Le fond de ta bibliothèque. Par défaut : le fond du <b>dernier tome que tu as ouvert</b>. Chaque tome garde aussi son propre fond quand tu l'ouvres (bouton 🎨 dans le tome).</div>
+    <div class="btn-row"><button class="btn ghost sm${pref.type === 'auto' ? ' sel' : ''}" id="lbAuto">↺ Dernier tome ouvert</button><button class="btn ghost sm" id="lbOwn">📷 Mon image…</button><button class="btn ghost sm${pref.type === 'none' ? ' sel' : ''}" id="lbNone">Aucun fond</button></div>
+    <input type="file" id="lbFile" accept="image/*" hidden>
+    ${vols.length ? `<div class="sec-title" style="margin-top:.8rem">Ou le fond d'un tome</div><div class="bg-grid">${vols.map(v => `<div class="bg-thumb${pref.type === 'vol' && pref.id === v.id ? ' sel' : ''}" data-v="${v.id}"><span>${esc(v.title)}</span></div>`).join('')}</div>` : ''}`;
+  $('bgScreen').classList.add('show'); $('bgScreen').scrollTop = 0; $('bgScreen').dataset.lib = '1';
+  const pick = pr => { store('nihongo_libbg', pr); closeBgPicker(); };
+  $('lbAuto').onclick = () => pick({ type: 'auto' });
+  $('lbNone').onclick = () => pick({ type: 'none' });
+  $('lbOwn').onclick = () => $('lbFile').click();
+  $('lbFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; const { blob } = await compressImage(f); await IDB.put('imgs', blob, 'lib:bg'); URLS.delete('lib:bg'); pick({ type: 'custom' }); };
+  $('bgContent').querySelectorAll('.bg-thumb').forEach(el => { const v = LIB.find(x => x.id === +el.dataset.v); bgURL(v).then(u => { if (u) el.style.backgroundImage = `url("${u}")`; }); el.onclick = () => pick({ type: 'vol', id: v.id }); });
+}
 async function setBg(v) {
   const bg = $('mangaBg'); if (!bg) return;
   const u = S.tab === 'manga' && v ? await bgURL(v) : null;
@@ -1703,7 +1731,8 @@ document.addEventListener('click', e => {
 function renderManga() {
   Q = null;
   const v = M.vol != null ? LIB.find(x => x.id === M.vol) : null;
-  if (!v) { M.vol = null; setBg(LIB.find(hasImages)); return renderLibrary(); }
+  if (!v) { M.vol = null; setLibBg(); return renderLibrary(); }
+  store('nihongo_lastvol', v.id);
   setBg(v); renderVolume(v);
 }
 
@@ -1718,7 +1747,7 @@ function renderLibrary() {
     <div id="pasteBox" class="hidden"><textarea class="paste" id="pasteIn" placeholder="Colle du texte japonais ici (une page, des sous-titres, un chapitre)"></textarea>
       <input class="type-input" id="pasteTitle" placeholder="Titre (facultatif)" style="width:100%;font-size:.8rem;margin-bottom:.5rem"><button class="btn full" id="pasteGo">Analyser le texte</button></div>
     <div class="status" id="mStatus"></div>
-    <div class="sec-title">Ma bibliothèque</div>
+    <div class="sec-title lib-title"><span>Ma bibliothèque</span>${LIB.some(hasImages) ? '<button class="small-btn" id="libBg">🎨 Fond</button>' : ''}</div>
     <div id="libList"></div>
     <div class="sec-title">Dictionnaire (pour le sens des mots)</div>
     <div class="tip">${DICTS.length ? DICTS.map(d => `<div class="dict-row"><span>📚 ${esc(d.title)} · ${d.count.toLocaleString('fr-FR')} entrées</span><button class="small-btn ko" data-ddel="${d.id}">Retirer</button></div>`).join('') :
@@ -1757,6 +1786,7 @@ function renderLibrary() {
       renderLibrary(); setStatus(LIB.length ? `Dictionnaire prêt : ${n} mots de tes mangas ont un sens.` : 'Dictionnaire prêt. Les sens seront ajoutés automatiquement à tes prochains mangas.');
     } catch (err) { setStatus('Import impossible : ' + (err.message || err), true); }
   };
+  if ($('libBg')) $('libBg').onclick = openLibBgPicker;
   list.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { M = Object.assign(M, { vol: +b.dataset.open, view: 'words', filter: 'learn', shown: 50, upTo: 0, open: -1 }); renderManga(); });
   list.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
     const v = LIB.find(x => x.id === +b.dataset.del);
