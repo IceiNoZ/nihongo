@@ -308,6 +308,50 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .kh{cursor:help}
 .kh-tip{position:fixed;z-index:60;background:var(--card);border:1px solid var(--accent);color:var(--text);border-radius:8px;padding:.3rem .6rem;font-family:var(--jp);font-size:1rem;pointer-events:none;opacity:0;transform:translate(-50%,-110%);transition:opacity .15s;box-shadow:0 6px 20px rgba(0,0,0,.5);white-space:nowrap}
 .kh-tip.show{opacity:1}
+.tokbox{margin-top:.7rem;font-size:.85rem}.tokbox summary{cursor:pointer;color:var(--muted);padding:.3rem 0}
+.icon-btn.daily{width:auto;padding:0 .7rem;gap:.3rem;color:var(--gold);border-color:var(--gold);font-size:.85rem}.icon-btn.daily b{font-family:var(--mono);font-size:.8rem}
+.icon-btn.hidden{display:none}
+.dailybar{display:flex;align-items:center;gap:.7rem;background:var(--surface);border:1px solid var(--gold);border-radius:12px;padding:.55rem .7rem;margin-bottom:.6rem;font-size:.8rem}
+.dailybar b{display:block;color:var(--gold);font-family:var(--mono);letter-spacing:.05em}.dailybar span{color:var(--muted);font-size:.72rem;font-family:var(--sans)}
+.badge.tag{background:var(--surface);color:var(--text);border:1px solid var(--border);text-transform:none;letter-spacing:0}
+.bub.on{background:#fffdf6;color:#14141c;border:1.5px solid var(--accent);z-index:3;box-shadow:0 3px 14px rgba(0,0,0,.35);overflow:hidden}
+.bub.on:hover{background:#fffdf6;color:#14141c}
+.bub .tk{border-radius:3px;transition:background .1s}.bub .tk.w.new{background:rgba(255,196,0,.38)}.bub .tk.w.learn{background:rgba(0,190,255,.22)}
+.bub .tk.sel{background:var(--accent)!important;color:#fff}
+.pjump{background:none;border:1px solid transparent;border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;padding:.4rem .6rem;cursor:pointer}
+.pjump:hover{border-color:var(--border);color:var(--text)}.pjump b{color:var(--text);font-size:.95rem}
+.pjump-row{display:flex;align-items:center;gap:.5rem;margin:-.1rem 0 .6rem}.pjump-row.hidden{display:none}
+.pjump-row input[type=range]{flex:1;accent-color:var(--accent)}.pjump-row .type-input{flex:0 0 4.6rem;width:4.6rem;min-width:0;font-size:.9rem;padding:.35rem .4rem;text-align:center}
+.reader-acts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.wpop{position:fixed;z-index:70;background:var(--card);border:1.5px solid var(--accent);border-radius:12px;padding:.65rem .75rem;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;font-family:var(--sans);font-size:.85rem}
+.wpop.show{display:block}
+.wp-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}.wp-jp{font-family:var(--jp);font-size:1.45rem;font-weight:500}
+.wp-rd{font-family:var(--jp);color:var(--accent)}.wp-ro{color:var(--muted);font-family:var(--mono);font-size:.72rem}.wp-head .say{margin-left:auto}
+.wp-form{color:var(--muted);font-size:.72rem;margin-top:.1rem}.wp-form .jp{color:var(--text)}
+.wp-fr{margin:.35rem 0;line-height:1.35}.wp-fr .muted,.muted{color:var(--muted)}
+.wp-gram{background:var(--surface);border-radius:8px;padding:.4rem .5rem;margin:.3rem 0;font-size:.78rem;line-height:1.6}.wp-gram small{color:var(--muted)}.wp-gist{color:var(--accent)}
+.wp-btns{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin-top:.4rem}
+.toast{position:fixed;left:50%;bottom:1.2rem;transform:translate(-50%,150%);z-index:80;background:var(--card);border:1px solid var(--green);border-radius:12px;padding:.55rem .7rem;display:flex;gap:.7rem;align-items:center;font-family:var(--sans);font-size:.82rem;transition:transform .25s;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:calc(100vw - 2rem)}
+.toast.show{transform:translate(-50%,0)}
+.prepbar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:.45rem .6rem;margin-bottom:.6rem;font-size:.78rem;font-family:var(--sans)}
+.gram{margin:.6rem 0 .2rem;font-family:var(--sans);font-size:.8rem}
+.gram-t{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.gram-note{color:var(--muted);font-size:.75rem}
+.gram-c{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.5rem .6rem;margin-bottom:.4rem;text-align:left}
+.gram-w{font-family:var(--jp);font-size:1.05rem;margin-bottom:.3rem}
+.gram-parts{display:flex;flex-wrap:wrap;gap:.3rem;align-items:stretch}
+.gp{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;padding:.2rem .45rem;background:var(--card);min-width:2.4rem}
+.gp b{font-family:var(--jp);font-weight:500;font-size:.95rem}.gp small{color:var(--muted);font-size:.66rem;line-height:1.25}
+.gp.head{border-color:var(--accent)}.gp.head small{color:var(--text)}
+.gram-g{margin-top:.35rem;color:var(--accent);font-size:.8rem}
+.bub-furi{font-family:var(--jp);font-size:1.15rem;line-height:2.2;color:var(--text)}
+.bub-furi rt{font-size:.55em;color:var(--muted)}
+.say{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;padding:0 .35rem;margin-left:.3rem;font-size:.8rem}
+.note-row{display:flex;gap:.4rem;margin-top:.6rem;align-items:center}.note-row .word-fr{flex:1;margin:0}
+.evo{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem .8rem;margin-bottom:.4rem}
+.evo-h{font-size:.8rem;color:var(--text);font-family:var(--sans)}.evo-h b{font-family:var(--mono);color:var(--green);font-size:1rem;margin-right:.2rem}.evo-h span{color:var(--muted);margin-left:.4rem;font-size:.72rem}
+.evo-svg{width:100%;height:auto;display:block;margin-top:.3rem}.evo-svg .ax{stroke:var(--border);stroke-width:1}.evo-svg .ln{fill:none;stroke:var(--green);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.evo-svg .pt{fill:var(--green);stroke:var(--surface);stroke-width:2}
+.evo-svg.bars rect{fill:var(--cyan)}.evo-ax{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);font-family:var(--mono)}
 .kh-tip b{font-family:var(--mono);color:var(--accent);margin-left:.4rem}
 ruby rt.ro{font-family:var(--mono);font-size:.42em;letter-spacing:0}
 .sh-tools{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 .3rem}
@@ -323,6 +367,7 @@ ruby rt.ro{font-family:var(--mono);font-size:.42em;letter-spacing:0}
       <h1>日本語 <span>QUIZ</span></h1>
     </div>
     <div class="head-btns">
+      <button class="icon-btn daily hidden" id="btnDaily" title="Révision du jour : tout ce qui est à revoir, tous onglets confondus">▶<b id="dailyN"></b></button>
       <button class="icon-btn" id="btnAudio" title="Prononciation audio">🔊</button>
       <button class="icon-btn sync" id="btnSync" title="Synchronisation" data-state="off">☁</button>
       <button class="icon-btn" id="btnProgress" title="Ma progression">📊<span class="due hidden" id="dueBadge"></span></button>
@@ -341,6 +386,8 @@ ruby rt.ro{font-family:var(--mono);font-size:.42em;letter-spacing:0}
   <main id="view"></main>
 </div>
 
+<div class="wpop" id="wPop"></div>
+<div class="toast" id="toast"></div>
 <div class="sheet" id="sheet"><button class="sheet-close" onclick="closeSheet()">✕</button><div id="sheetContent"></div></div>
 
 <div class="overlay" id="syncScreen"><div class="app">
@@ -443,22 +490,45 @@ function readingVariants(r) {
 const INTERVALS_H = [0, 4, 24, 72, 168, 384, 840]; // heures avant la prochaine révision
 let SRS = load('nihongo_srs', {});
 for (const k in SRS) { const e = SRS[k]; if (e.c === undefined) { SRS[k] = { c: e.correct || 0, w: e.wrong || 0, lvl: Math.max(0, Math.min(3, (e.correct || 0) - (e.wrong || 0))), due: 0 }; } }
-function saveSRS() { if (!store('nihongo_srs', SRS)) console.warn('Sauvegarde impossible'); if (window.syncSoon) syncSoon(); updateDueBadge(); }
+let HIST = load('nihongo_hist', {});   // { 'AAAA-MM-JJ': { k: maîtrisés, mw: mots de manga connus, r: { appareil: révisions } } }
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const histDay = () => HIST[dayKey()] || (HIST[dayKey()] = { k: 0, mw: 0, r: {} });
+function histSnap() { const h = histDay(); let k = 0, mw = 0; for (const key in SRS) if (mastery(key) === 3) { k++; if (key.startsWith('m:')) mw++; } h.k = k; h.mw = mw; store('nihongo_hist', HIST); }
+function mergeHist(r) {
+  let ch = false;
+  for (const d in r) { const l = HIST[d] || (HIST[d] = { k: 0, mw: 0, r: {} }), x = r[d] || {};
+    if ((x.k || 0) > l.k) { l.k = x.k; ch = true; } if ((x.mw || 0) > l.mw) { l.mw = x.mw; ch = true; }
+    for (const dev in x.r || {}) if ((x.r[dev] || 0) > (l.r[dev] || 0)) { l.r[dev] = x.r[dev]; ch = true; } }
+  if (ch) store('nihongo_hist', HIST); return ch;
+}
+function saveSRS() { if (!store('nihongo_srs', SRS)) console.warn('Sauvegarde impossible'); histSnap(); if (window.syncSoon) syncSoon(); updateDueBadge(); }
 function srsGet(k) { return SRS[k]; }
 function srsUpdate(k, ok) {
   const e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 });
   if (ok) { e.c++; e.lvl = Math.min(6, e.lvl + 1); } else { e.w++; e.lvl = e.lvl > 2 ? 1 : 0; }
+  delete e.del; const hd = histDay(), dev = typeof SYNC !== 'undefined' && SYNC.device || 'ici'; hd.r[dev] = (hd.r[dev] || 0) + 1;
   e.due = Date.now() + INTERVALS_H[e.lvl] * 3600e3; e.t = Date.now();
   saveSRS();
 }
 function srsMark(k, known) { const e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 }); e.lvl = known ? 6 : 0; e.due = known ? Date.now() + 840 * 3600e3 : 0; e.known = !!known; e.t = Date.now(); saveSRS(); }
-function mastery(k) { const e = SRS[k]; if (!e || (e.c + e.w === 0 && !e.known)) return -1; if (e.lvl >= 4) return 3; if (e.lvl === 3) return 2; if (e.lvl >= 1) return 1; return 0; }
-function updateDueBadge() {
-  const b = $('dueBadge'); if (!b) return;
-  let n = 0; for (const k in SRS) if (isDue(k)) n++;
-  b.textContent = n > 99 ? '99+' : n; b.classList.toggle('hidden', !n);
+function mastery(k) { const e = SRS[k]; if (!e || e.del || (e.c + e.w === 0 && !e.known)) return -1; if (e.lvl >= 4) return 3; if (e.lvl === 3) return 2; if (e.lvl >= 1) return 1; return 0; }
+// clés de la révision du jour : tout ce qui est dû + les mots/bulles ajoutés récemment et jamais révisés
+const FRESH_MAX = 15;
+function dailyKeys() {
+  const due = [], fresh = [];
+  for (const k in SRS) { const e = SRS[k]; if (isDue(k)) due.push(k); else if (!e.del && e.add && !e.known && e.c + e.w === 0 && /^[mb]:/.test(k)) fresh.push(k); }
+  fresh.sort((a, b) => (SRS[b].t || 0) - (SRS[a].t || 0));
+  return { due, fresh: fresh.slice(0, FRESH_MAX) };
 }
-function isDue(k) { const e = SRS[k]; return e && e.lvl < 6 && e.due <= Date.now() && (e.c + e.w > 0); }
+function updateDueBadge() {
+  const b = $('dueBadge'), d = $('btnDaily'); if (!b) return;
+  const { due, fresh } = dailyKeys(), n = due.length + fresh.length;
+  b.classList.add('hidden');
+  if (d) { $('dailyN').textContent = n > 99 ? '99+' : n; d.classList.toggle('hidden', !n); }
+}
+function isDue(k) { const e = SRS[k]; return e && !e.del && e.lvl < 6 && e.due <= Date.now() && (e.c + e.w > 0); }
+function speakNow(text) { const was = S.audio; S.audio = true; speak(text); S.audio = was; }
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-say]'); if (b) { e.stopPropagation(); speakNow(b.dataset.say); } }, true);
 
 // ═════════════ RÉGLAGES ═════════════
 const S = Object.assign({
@@ -507,17 +577,26 @@ function getSource() {
   if (t === 'kanji') {
     const c = S.kanji;
     if (c.set === 'story') return null;
-    const data = c.set === 'kanji' ? DATA.kanji : DATA.kanjiWords;
-    const items = c.lvl === 'all' ? data : data.filter(x => x.lvl === c.lvl);
+    const manga = c.set === 'manga', mk = manga ? mangaKanji() : null;
+    const data = c.set === 'words' ? DATA.kanjiWords : manga ? mk.inQuiz : DATA.kanji;
+    let items = c.lvl === 'all' ? data : data.filter(x => x.lvl === c.lvl);
     const words = c.set === 'words';
-    return { items, pool: data, name: words ? 'Mots en kanji' : 'Kanji', make: it => {
+    const pool = manga ? DATA.kanji : data;
+    if (manga) {   // à réviser d'abord, puis les nouveaux du plus fréquent au plus rare
+      const now = Date.now(), rank = x => { const e = SRS[x.jp]; if (!e || e.c + e.w === 0) return e && e.known ? 3 : 2; if (e.lvl < 6 && e.due <= now) return e.lvl <= 1 ? 0 : 1; return 3; };
+      items = [...items].sort((a, b) => rank(a) - rank(b) || mk.freq.get(b.jp) - mk.freq.get(a.jp));
+    }
+    const exM = it => manga ? mangaExamples(it.jp) : '';
+    return { items, pool, ordered: manga, name: words ? 'Mots en kanji' : manga ? 'Kanji de mes mangas' : 'Kanji',
+      empty: manga ? (LIB.length ? 'Aucun kanji de tes mangas dans cette sélection.' : 'Importe un manga dans l\'onglet 漫画 Manga : ses kanji apparaîtront ici, du plus fréquent au plus rare.') : '', make: it => {
       const meta = { lvl: it.lvl };
       const sub = x => words ? x.kana : x.reading;
-      if (c.dir === 'toKanji') return { key: it.jp, meta, prompt: it.fr, pClass: 'fr', label: words ? 'Quel mot ?' : 'Quel kanji ?', options: optionsFrom(it, data, x => x.jp), optClass: 'jp big', speakText: it.jp, after: `${it.jp} — ${words ? it.kana : it.reading}` };
+      const explainHTML = exM(it);
+      if (c.dir === 'toKanji') return { key: it.jp, meta, prompt: it.fr, pClass: 'fr', label: words ? 'Quel mot ?' : 'Quel kanji ?', options: optionsFrom(it, pool, x => x.jp), optClass: 'jp big', speakText: it.jp, after: `${it.jp} — ${words ? it.kana : it.reading}`, explainHTML };
       if (c.dir === 'type') return { key: it.jp, meta, prompt: it.jp, pClass: words ? 'lg' : 'xl', label: 'Tape la lecture (romaji ou kana)', hint: it.fr,
-        accept: words ? new Set([normKana(it.kana)]) : readingVariants(it.reading), answerText: words ? `${it.kana} (${it.reading})` : it.reading, speakText: it.jp };
+        accept: words ? new Set([normKana(it.kana)]) : readingVariants(it.reading), answerText: words ? `${it.kana} (${it.reading})` : it.reading, speakText: it.jp, explainHTML };
       return { key: it.jp, meta, prompt: it.jp, pClass: words ? 'lg' : 'xl', label: 'Que veut dire ce ' + (words ? 'mot' : 'kanji') + ' ?',
-        options: optionsFrom(it, data, x => x.fr, sub), optClass: 'long', speakText: it.jp, after: `${it.jp} — ${sub(it)}`, reveal: { main: it.fr, sub: sub(it) } };
+        options: optionsFrom(it, pool, x => x.fr, sub), optClass: 'long', speakText: it.jp, after: `${it.jp} — ${sub(it)}`, reveal: { main: it.fr, sub: sub(it) }, explainHTML };
     } };
   }
   if (t === 'mots') {
@@ -532,6 +611,7 @@ function getSource() {
   }
   if (t === 'phrases') {
     const c = S.phrases;
+    if (c.set === 'bubbles') return bubbleSource();
     if (c.set === 'grammar') {
       const items = c.cat === 'all' ? DATA.grammarItems : DATA.grammarItems.filter(x => x.cat === c.cat);
       return { items, pool: items, name: 'Grammaire N5', make: it => ({
@@ -570,12 +650,12 @@ function orderItems(items, keyFn) {
 function startQuiz(source, opts = {}) {
   const target = opts.target || $('view');
   stopTimer();
-  if (!source || !source.items.length) { Q = null; target.innerHTML = `<div class="empty">Rien à réviser ici pour l'instant.</div>`; return; }
+  if (!source || !source.items.length) { Q = null; target.innerHTML = `<div class="empty">${(source && source.empty) || 'Rien à réviser ici pour l\'instant.'}</div>`; return; }
   const kf = source.keyOf || (it => source.make(it).key);
   const ordered = opts.fixed ? shuffle(source.items) : (opts.keepOrder ? [...source.items] : orderItems(source.items, kf));
   const game = opts.game || S.game;
   const endless = game === 'libre' || game === 'survie';
-  Q = { source, game, kf, opts, target, queue: ordered, endless, total: endless ? Infinity : Math.min(opts.fixed ? ordered.length : TOTAL, ordered.length),
+  Q = { source, game, kf, opts, target, queue: ordered, endless, total: endless ? Infinity : Math.min(opts.total || (opts.fixed ? ordered.length : TOTAL), ordered.length),
         i: 0, correct: 0, wrong: 0, streak: 0, best: 0, lives: 3, mistakes: [], answered: false, timer: null, cur: null };
   renderQuizShell(target);
   nextQuestion(true);
@@ -613,17 +693,17 @@ function nextQuestion(first) {
 
 function metaHTML(q) {
   const parts = [Q.endless ? `Question ${Q.i + 1}` : `Question ${Q.i + 1} / ${Q.total}`];
-  let badge = '';
-  if (q.meta && q.meta.lvl) badge = `<span class="badge ${q.meta.lvl === '+' ? 'plus' : q.meta.lvl}">${q.meta.lvl === '+' ? 'Au-delà N4' : q.meta.lvl}</span>`;
+  let badge = q.tag ? `<span class="badge tag">${esc(q.tag)}</span>` : '';
+  if (q.meta && q.meta.lvl) badge += `<span class="badge ${q.meta.lvl === '+' ? 'plus' : q.meta.lvl}">${q.meta.lvl === '+' ? 'Au-delà N4' : q.meta.lvl}</span>`;
   return `<div class="q-meta"><span>${parts[0]}</span>${badge}</div>`;
 }
 
 function renderQuestion(q) {
-  const flash = Q.game === 'flash' && !q.accept;
+  const flash = (Q.game === 'flash' || q.flash) && !q.accept;
   const card = $('card');
   card.innerHTML = `${metaHTML(q)}
     ${q.visual ? '<div id="qVisual"></div>' : ''}
-    <div class="prompt ${q.pClass} pop${S.tab !== 'bases' && !q.accept ? ' kh' : ''}" id="prompt">${q.html ? q.prompt : esc(q.prompt)}</div>
+    <div class="prompt ${q.pClass} pop${(DAILY ? !q.noKh : S.tab !== 'bases') && !q.accept ? ' kh' : ''}" id="prompt">${q.html ? q.prompt : esc(q.prompt)}</div>
     ${q.context ? `<div class="context kh">${q.context}</div>` : ''}
     ${q.hint && !q.accept ? `<div class="hint">${esc(q.hint)}</div>` : ''}
     ${q.hint && q.accept ? `<div class="hint">sens : ${esc(q.hint)}</div>` : ''}
@@ -687,10 +767,11 @@ function submitTyped() {
 
 function flashReveal(q) {
   const r = q.reveal || { main: (q.options || []).find(o => o.ok)?.t };
-  $('answerZone').innerHTML = `<div class="reveal"><div class="reveal-main">${esc(r.main)}</div>${r.sub ? `<div class="reveal-sub">${esc(r.sub)}</div>` : ''}${r.fr ? `<div class="reveal-fr">${esc(r.fr)}</div>` : ''}</div>
+  $('answerZone').innerHTML = `<div class="reveal"><div class="reveal-main">${r.html ? r.main : esc(r.main)}</div>${r.sub ? `<div class="reveal-sub">${esc(r.sub)}</div>` : ''}${r.fr ? `<div class="reveal-fr">${esc(r.fr)}</div>` : ''}</div>
     <div class="btn-row"><button class="btn ko" id="fNo">✗ Je savais pas</button><button class="btn ok" id="fYes">✓ Je savais</button></div>`;
   if (q.filled) $('prompt').innerHTML = q.filled;
   if (q.explainHTML) $('explain').innerHTML = `<div class="explain">${q.explainHTML}</div>`;
+  if (q.afterReveal) q.afterReveal();
   if (q.speakText) speak(q.speakText);
   $('fNo').onclick = () => flashJudge(false); $('fYes').onclick = () => flashJudge(true);
 }
@@ -724,7 +805,7 @@ function showResult() {
   const done = Q.correct + Q.wrong, pct = done ? Math.round(Q.correct / done * 100) : 0;
   const [emoji, title] = pct === 100 ? ['🏆', 'PARFAIT !'] : pct >= 80 ? ['🎌', 'EXCELLENT !'] : pct >= 60 ? ['✨', 'BIEN JOUÉ !'] : pct >= 40 ? ['📚', 'CONTINUE !'] : ['🔄', 'À RETRAVAILLER'];
   const errs = Q.mistakes.map(it => { const q = Q.source.make(it); const main = q.pClass === 'fr' ? (q.options.find(o => o.ok)?.t || '') : (q.html ? it.answer : q.prompt);
-    const r = q.reveal ? [q.reveal.main, q.reveal.sub].filter(Boolean).join(' · ') : (q.answerText || q.after || q.prompt);
+    const r = q.resultText || (q.reveal ? [q.reveal.main, q.reveal.sub].filter(Boolean).join(' · ') : (q.answerText || q.after || q.prompt));
     return `<div class="err-item"><div class="k">${esc(main)}</div><div><div>${esc(q.html ? it.sentence.replace('___', it.answer) : r)}</div></div></div>`; }).join('');
   $('card').innerHTML = `<div class="result"><div class="emoji">${emoji}</div><h2>${title}</h2>
     <div class="sub">${esc(Q.source.name)}<br>Score <b>${Q.correct}/${done}</b> (${pct}%) · Meilleure série <b>${Q.best}</b></div>
@@ -762,7 +843,8 @@ function renderControls() {
     h += `<div class="row">${[['toRomaji', `${L} → romaji`], ['toKana', `romaji → ${L}`], ['type', '✍ Taper']].map(([k, l]) => chip(l, c.dir === k, `bases.dir:${k}`, 'sub')).join('')}</div>`;
   } else if (t === 'kanji') {
     const c = S.kanji;
-    h += `<div class="row">${chip('Kanji seuls', c.set === 'kanji', 'kanji.set:kanji')}${chip('Mots en kanji', c.set === 'words', 'kanji.set:words')}${chip('📖 Histoires', c.set === 'story', 'kanji.set:story')}</div>`;
+    h += `<div class="row">${chip('Kanji seuls', c.set === 'kanji', 'kanji.set:kanji')}${chip('Mots en kanji', c.set === 'words', 'kanji.set:words')}${chip('漫画 De mes mangas', c.set === 'manga', 'kanji.set:manga')}${chip('📖 Histoires', c.set === 'story', 'kanji.set:story')}</div>`;
+    if (c.set === 'manga') { const mk = mangaKanji(); h += `<div class="tip" style="margin:.2rem 0 .5rem">${LIB.length ? `Tes mangas contiennent <b>${mk.freq.size}</b> kanji différents, dont <b>${mk.inQuiz.length}</b> dans le quiz, classés du plus fréquent au plus rare.${mk.outside.length ? ` Les plus fréquents hors quiz : <span class="jp">${mk.outside.slice(0, 14).map(esc).join(' ')}</span> (tu les vois dans les mots de 漫画 Manga).` : ''}` : 'Importe un manga dans 漫画 Manga pour voir ses kanji ici.'}</div>`; }
     const lv = c.set === 'words' ? [['all', 'Tous'], ['N5', 'N5'], ['N4', 'N4'], ['Manga', 'Manga']] : [['all', 'Tous'], ['N5', 'N5'], ['N4', 'N4'], ['+', 'Au-delà']];
     if (c.set === 'words' && c.lvl === '+') c.lvl = 'all'; if (c.set !== 'words' && c.lvl === 'Manga') c.lvl = 'all';
     h += `<div class="row">${lv.map(([k, l]) => chip(l, c.lvl === k, `kanji.lvl:${k}`, 'sub')).join('')}</div>`;
@@ -773,10 +855,11 @@ function renderControls() {
     h += `<div class="row">${[['toFr', '日本語 → sens'], ['toJp', 'sens → 日本語'], ['type', '✍ Taper la lecture']].map(([k, l]) => chip(l, c.dir === k, `mots.dir:${k}`, 'sub')).join('')}</div>`;
   } else if (t === 'phrases') {
     const c = S.phrases;
-    h += `<div class="row">${chip('Phrases simples', c.set === 'simple', 'phrases.set:simple')}${chip('Phrases mixtes', c.set === 'mixed', 'phrases.set:mixed')}${chip('<span class="jp">文法</span> Grammaire N5', c.set === 'grammar', 'phrases.set:grammar')}</div>`;
+    h += `<div class="row">${chip('Phrases simples', c.set === 'simple', 'phrases.set:simple')}${chip('Phrases mixtes', c.set === 'mixed', 'phrases.set:mixed')}${chip('<span class="jp">文法</span> Grammaire N5', c.set === 'grammar', 'phrases.set:grammar')}${chip('💬 Mes bulles', c.set === 'bubbles', 'phrases.set:bubbles')}</div>`;
+    if (c.set === 'bubbles') h += `<div class="tip" style="margin:.2rem 0 .5rem">Les bulles que tu ajoutes depuis 漫画 Manga (📖 Lire → touche une bulle → 💬). Essaie de comprendre la bulle, puis révèle : furigana, sens des mots et grammaire.</div>`;
     if (c.set === 'grammar') h += `<div class="row">${[['all', 'Tout mélanger'], ['particules', 'Particules'], ['verbes', 'Verbes'], ['structures', 'Adjectifs & structures']].map(([k, l]) => chip(l, c.cat === k, `phrases.cat:${k}`, 'sub')).join('')}</div>`;
   }
-  if (t !== 'manga' && !(t === 'kanji' && S.kanji.set === 'story')) h += `<div class="divider"></div>${gameRow()}`;
+  if (t !== 'manga' && !(t === 'kanji' && S.kanji.set === 'story') && !(t === 'phrases' && S.phrases.set === 'bubbles')) h += `<div class="divider"></div>${gameRow()}`;
   if (t === 'manga') { $('controls').innerHTML = ''; return; }
   h = `<button class="setbar ${S.panel ? 'open' : ''}" id="setbar"><span>⚙</span><span class="sum">${summary()}</span><span class="car">▾</span></button>` + (S.panel ? `<div class="setpanel">${h}</div>` : '');
   $('controls').innerHTML = h;
@@ -789,13 +872,14 @@ function summary() {
   if (t === 'bases') { const c = S.bases, L = c.set === 'kata' ? 'カ' : 'ひ';
     p = [c.set === 'kata' ? 'Katakana' : 'Hiragana', { all: 'Tous', base: 'De base', dakuten: 'Accents', yoon: 'Combinaisons' }[c.group], { toRomaji: `${L}→romaji`, toKana: `romaji→${L}`, type: '✍ Taper' }[c.dir]]; }
   else if (t === 'kanji') { const c = S.kanji;
-    p = [{ kanji: 'Kanji seuls', words: 'Mots en kanji', story: '📖 Histoires' }[c.set], c.lvl === 'all' ? 'Tous niveaux' : c.lvl === '+' ? 'Au-delà N4' : c.lvl];
+    p = [{ kanji: 'Kanji seuls', words: 'Mots en kanji', manga: '漫画 Mes mangas', story: '📖 Histoires' }[c.set], c.lvl === 'all' ? 'Tous niveaux' : c.lvl === '+' ? 'Au-delà N4' : c.lvl];
     if (c.set !== 'story') p.push({ toFr: '漢→sens', toKanji: 'sens→漢', type: '✍ Lecture' }[c.dir]); }
   else if (t === 'mots') { const c = S.mots; p = [c.set === 'kata' ? 'Mots empruntés' : 'Mots japonais', { toFr: '日本語→sens', toJp: 'sens→日本語', type: '✍ Lecture' }[c.dir]]; }
-  else if (t === 'phrases') { const c = S.phrases; p = [{ simple: 'Phrases simples', mixed: 'Phrases mixtes', grammar: 'Grammaire N5' }[c.set]];
+  else if (t === 'phrases') { const c = S.phrases; p = [{ simple: 'Phrases simples', mixed: 'Phrases mixtes', grammar: 'Grammaire N5', bubbles: '💬 Mes bulles' }[c.set]];
     if (c.set === 'grammar') p.push({ all: 'Tout', particules: 'Particules', verbes: 'Verbes', structures: 'Adjectifs & structures' }[c.cat]); }
-  if (!(t === 'kanji' && S.kanji.set === 'story')) { p.push(G[S.game]); if (S.smart) p.push('🧠'); }
-  return p.map(esc).join(' · ').replace(/(漢|日本語|カ|ひ)/g, '<span class="jp">$1</span>');
+  if (t === 'phrases' && S.phrases.set === 'bubbles') p.push(G.flash + ` (${bubbleList().length})`);
+  else if (!(t === 'kanji' && S.kanji.set === 'story')) { p.push(G[S.game]); if (S.smart) p.push('🧠'); }
+  return p.map(esc).join(' · ').replace(/(漢|日本語|漫画|カ|ひ)/g, '<span class="jp">$1</span>');
 }
 function act(a) {
   if (a === 'smart') S.smart = !S.smart;
@@ -803,17 +887,56 @@ function act(a) {
   else { const [path, val] = a.split(':'); const [grp, key] = path.split('.'); S[grp][key] = val; }
   saveSettings(); render();
 }
+let DAILY = false;
 function render() {
   stopTimer(); hidePop();
-  if (S.tab !== 'manga') { const bg = $('mangaBg'); if (bg) bg.classList.remove('show'); }
-  document.body.dataset.tab = S.tab;
-  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === S.tab));
+  if (S.tab !== 'manga' || DAILY) { const bg = $('mangaBg'); if (bg) bg.classList.remove('show'); }
+  document.body.dataset.tab = DAILY ? 'phrases' : S.tab;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', !DAILY && b.dataset.tab === S.tab));
+  if (DAILY) return renderDaily();
   renderControls();
   if (S.tab === 'manga') return renderManga();
   if (S.tab === 'kanji' && S.kanji.set === 'story') return renderStory();
-  startQuiz(getSource());
+  const src = getSource();
+  startQuiz(src, src ? { game: src.game, keepOrder: !!src.ordered } : {});
 }
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; saveSettings(); render(); });
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => { DAILY = false; S.tab = b.dataset.tab; saveSettings(); render(); });
+$('btnDaily').onclick = () => { DAILY = true; if (typeof closeProgress === 'function') closeProgress(); render(); scrollTo(0, 0); };
+
+// ═════════════ RÉVISION DU JOUR (tous onglets) ═════════════
+function dailySource() {
+  const saved = JSON.stringify(S), subs = [];
+  const take = (tab, key, val, tag, noKh) => {
+    Object.assign(S, JSON.parse(saved)); S.tab = tab; S[key] = Object.assign(JSON.parse(saved)[key] || {}, val);
+    try { const s = getSource(); if (s && s.items) subs.push({ s, tag, noKh }); } catch (e) { console.warn(e); }
+  };
+  take('bases', 'bases', { set: 'kata', group: 'all', dir: 'toRomaji' }, 'カタカナ', true);
+  take('bases', 'bases', { set: 'hira', group: 'all', dir: 'toRomaji' }, 'ひらがな', true);
+  take('kanji', 'kanji', { set: 'kanji', lvl: 'all', dir: 'toFr' }, '漢字');
+  take('kanji', 'kanji', { set: 'words', lvl: 'all', dir: 'toFr' }, '漢字 mots');
+  take('mots', 'mots', { set: 'hira', dir: 'toFr' }, '言葉');
+  take('mots', 'mots', { set: 'kata', dir: 'toFr' }, '言葉');
+  take('phrases', 'phrases', { set: 'simple', cat: 'all' }, '文');
+  take('phrases', 'phrases', { set: 'mixed', cat: 'all' }, '文');
+  take('phrases', 'phrases', { set: 'grammar', cat: 'all' }, '文法');
+  take('phrases', 'phrases', { set: 'bubbles' }, '💬 bulle');
+  Object.assign(S, JSON.parse(saved));
+  if (typeof mangaSource === 'function') { const keep = [M.upTo, M.prep]; M.upTo = 0; M.prep = null; for (const v of LIB) subs.push({ s: mangaSource(v, 'flash'), tag: '漫画 ' + v.title }); [M.upTo, M.prep] = keep; }
+  const { due, fresh } = dailyKeys(), want = new Set([...due, ...fresh]), seen = new Set(), items = [];
+  for (const { s, tag, noKh } of subs) {
+    const kf = s.keyOf || (it => s.make(it).key);
+    for (const it of s.items) { if (want.size === seen.size) break; let k; try { k = kf(it); } catch (e) { continue; } if (want.has(k) && !seen.has(k)) { seen.add(k); items.push({ s, it, k, tag, noKh }); } }
+  }
+  return { items, pool: items, name: 'Révision du jour', keyOf: x => x.k, restart: () => render(),
+    empty: 'Rien à réviser pour l\'instant 🎉<br><span style="font-size:.8rem">Les cartes reviennent quand c\'est le bon moment pour ta mémoire. Continue un onglet, ou lis ton manga.</span>',
+    make: x => { const q = x.s.make(x.it); if (!q.options && !q.accept) q.flash = true; q.tag = x.tag; q.noKh = !!x.noKh; return q; } };
+}
+function renderDaily() {
+  const { due, fresh } = dailyKeys();
+  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}</span></div></div>`;
+  $('dQuit').onclick = () => { DAILY = false; render(); };
+  startQuiz(dailySource(), { game: 'normal', total: 40 });
+}
 $('btnAudio').onclick = () => { S.audio = !S.audio; saveSettings(); $('btnAudio').classList.toggle('on', S.audio); if (S.audio) speak('こんにちは'); };
 $('btnAudio').classList.toggle('on', S.audio);
 
@@ -911,6 +1034,147 @@ async function analysePagesAsync(tokenizer, pages, onProgress) {
 const blockText = b => b.t ? b.t.map(x => x[0]).join('') : (b.text || '');
 
 
+// ── Décomposeur de conjugaisons : 食べられなかった → 食べる + られ + なかっ + た ──
+// Travaille sur les jetons kuromoji (pos, conjugated_form, basic_form).
+const BASIC_FR = { 'する': 'faire', 'いる': 'être (là)', 'ある': 'y avoir, être', 'なる': 'devenir', '来る': 'venir', 'くる': 'venir', '行く': 'aller', 'いく': 'aller',
+  '言う': 'dire', 'いう': 'dire', '思う': 'penser', '見る': 'voir', 'みる': 'voir', '分かる': 'comprendre', 'わかる': 'comprendre', 'できる': 'pouvoir (faire)', 'やる': 'faire',
+  'くれる': 'donner (à moi)', 'もらう': 'recevoir', 'あげる': 'donner', 'ない': 'ne pas y avoir', 'いい': 'bien, bon', 'よい': 'bien, bon' };
+const AUX_VERB = { // verbes « non autonomes » après て/で
+  'いる': ['en train de / état', 'prog'], 'てる': ['en train de / état', 'prog'], 'でる': ['en train de / état', 'prog'], 'ある': ['état (déjà fait)', 'res'],
+  'しまう': ['complètement / malheureusement', 'comp'], 'ちゃう': ['complètement / malheureusement', 'comp'], 'じゃう': ['complètement / malheureusement', 'comp'], 'ちまう': ['complètement / malheureusement', 'comp'],
+  'おく': ['à l\'avance', 'prep'], 'とく': ['à l\'avance', 'prep'], 'どく': ['à l\'avance', 'prep'], 'みる': ['essayer de', 'try'],
+  'くる': ['venir / commencer à', 'come'], 'いく': ['continuer / s\'en aller', 'go'], 'く': ['continuer / s\'en aller', 'go'],
+  'くださる': ['s\'il te plaît (demande polie)', 'please'], 'くれる': ['pour moi (faveur)', 'favor'], 'あげる': ['pour quelqu\'un (faveur)', 'favor'], 'やる': ['pour quelqu\'un (faveur)', 'favor'],
+  'もらう': ['se faire faire / obtenir que', 'favor'], 'なる': ['devenir', 'become'], 'いける': ['(possible)', ''], 'すぎる': ['trop', 'too'], 'やすい': ['facile à', 'easy'], 'にくい': ['difficile à', 'hard'],
+  'かける': ['commencer à', ''], 'だす': ['se mettre à', 'start'], 'はじめる': ['commencer à', 'start'], 'つづける': ['continuer à', ''], 'おわる': ['finir de', ''], 'いただく': ['recevoir la faveur (poli)', 'favor']
+};
+function partOf(t, prev) {
+  const b = t.basic_form, s = t.surface_form, f = t.conjugated_form || '';
+  if (t.pos === '動詞' && t.pos_detail_1 === '接尾') {
+    if (b === 'れる' || b === 'られる') return ['passif / potentiel', 'pot'];
+    if (b === 'せる' || b === 'させる') return ['causatif (faire / laisser)', 'caus'];
+    if (b === 'がる') return ['il/elle montre que', ''];
+    return ['', ''];
+  }
+  if (t.pos === '動詞' && t.pos_detail_1 === '非自立') return AUX_VERB[b] || ['', ''];
+  if (t.pos === '形容詞' && t.pos_detail_1 === '非自立') {
+    if (b === 'いい' || b === 'よい') return prev === 'mo' ? ['permission (on peut)', 'perm'] : ['bien', ''];
+    if (b === 'ほしい') return ['je veux que tu…', 'wantyou'];
+    return AUX_VERB[b] || ['', ''];
+  }
+  if (t.pos === '助動詞') {
+    if (t.conjugated_type === '特殊・ナイ' || b === 'ない') return f.includes('仮定縮約') ? ['si … pas (→ il faut)', 'must'] : f === '仮定形' ? ['si … pas', 'negcond'] : ['négation', 'neg'];
+    if (b === 'ぬ' || b === 'ん') return ['négation', 'neg'];
+    if (t.conjugated_type === '特殊・タ' || b === 'た' || b === 'だ' && t.conjugated_type === '特殊・タ') return f === '仮定形' ? ['si / quand (condition)', 'cond'] : ['passé', 'past'];
+    if (b === 'ます') return ['politesse', 'pol'];
+    if (b === 'たい') return ['envie (vouloir)', 'want'];
+    if (b === 'たがる') return ['il/elle veut', 'want'];
+    if (b === 'う' || b === 'よう') return ['volonté / invitation', 'vol'];
+    if (b === 'まい') return ['ne … sûrement pas / ne pas vouloir', 'neg'];
+    if (b === 'だ' || b === 'です') return f.includes('タ接続') ? ['être (copule)', ''] : ['être (copule)', 'cop'];
+    if (b === 'らしい') return ['il paraît que', 'hear'];
+    if (b === 'そうだ' || b === 'そう') return ['avoir l\'air de', 'seem'];
+    if (b === 'みたい') return ['on dirait', 'seem'];
+    return ['', ''];
+  }
+  if (t.pos === '助詞') {
+    if (s === 'て' || s === 'で') return ['forme en ‑te (et… / en …ant)', 'te'];
+    if (s === 'ば') return ['si (condition)', 'cond'];
+    if (s === 'ちゃ' || s === 'じゃ' || s === 'ては' || s === 'では') return ['ては : si / à faire', 'teha'];
+    if (s === 'たり' || s === 'だり') return ['entre autres (faire des choses comme)', 'list'];
+    if (s === 'ながら') return ['tout en …ant', 'while'];
+    if (s === 'も') return ['même si', 'mo'];
+    return ['', ''];
+  }
+  if (t.pos === '名詞' && t.pos_detail_1 === '接尾' && s === 'そう') return ['avoir l\'air de', 'seem'];
+  return ['', ''];
+}
+const isHead = t => (t.pos === '動詞' && t.pos_detail_1 === '自立') || (t.pos === '形容詞' && t.pos_detail_1 === '自立');
+const isLink = (t, prevOp, next) => {
+  if (t.pos === '助動詞') return t.basic_form !== 'だ' || prevOp !== '' || t.conjugated_type === '特殊・タ';
+  if (t.pos === '動詞' && (t.pos_detail_1 === '接尾' || t.pos_detail_1 === '非自立')) return true;
+  if (t.pos === '形容詞' && t.pos_detail_1 === '非自立') return true;
+  if (t.pos === '助詞' && t.pos_detail_1 === '接続助詞' && /^(て|で|ば|ちゃ|じゃ|ては|では|たり|だり|ながら)$/.test(t.surface_form)) return true;
+  if (t.pos === '助詞' && t.surface_form === 'も' && (prevOp === 'te') && next && (next.pos === '形容詞' || next.pos === '動詞')) return true;
+  if (t.pos === '名詞' && t.pos_detail_1 === '接尾' && t.surface_form === 'そう') return true;
+  return false;
+};
+// Renvoie [{surface, base, reading, adj, parts:[{s, label, op}], imp}]
+function deconjugate(tokens) {
+  const out = [];
+  for (let i = 0; i < tokens.length; i++) {
+    let t = tokens[i];
+    let head = null; const start = (t.word_position || 1) - 1;
+    if (isHead(t)) head = { s: t.surface_form, base: t.basic_form, reading: t.reading || '', adj: t.pos === '形容詞', form: t.conjugated_form || '' };
+    // 勉強 + し… → 勉強する ; 静か + だった → 静かだ
+    if (!head && t.pos === '名詞' && t.pos_detail_1 === 'サ変接続' && tokens[i + 1] && tokens[i + 1].basic_form === 'する' && tokens[i + 1].pos === '動詞') {
+      const n = tokens[i + 1]; head = { s: t.surface_form + n.surface_form, base: t.surface_form + 'する', reading: (t.reading || '') + (n.reading || ''), adj: false, form: n.conjugated_form || '', noun: t.surface_form }; i++;
+    } else if (!head && t.pos === '名詞' && t.pos_detail_1 === '形容動詞語幹' && tokens[i + 1] && tokens[i + 1].pos === '助動詞' && /^(だ|です)$/.test(tokens[i + 1].basic_form) && tokens[i + 2] && tokens[i + 2].pos === '助動詞') {
+      head = { s: t.surface_form, base: t.surface_form, reading: t.reading || '', adj: true, na: true, form: '', noun: t.surface_form };
+    }
+    if (!head) continue;
+    const parts = []; let j = i + 1, prevOp = head.na ? 'na' : '';
+    while (j < tokens.length && isLink(tokens[j], prevOp, tokens[j + 1])) {
+      const [label, op] = partOf(tokens[j], prevOp);
+      parts.push({ s: tokens[j].surface_form, base: tokens[j].basic_form, label, op }); prevOp = op || prevOp; j++;
+    }
+    const imp = /^命令/.test(head.form);
+    const before = tokens[i - (head.noun && !head.na ? 2 : 1)];
+    if (parts.length || imp) out.push(Object.assign(head, { start, surface: head.s + parts.map(p => p.s).join(''), parts, imp, after: tokens[j] ? tokens[j].surface_form : '', byNi: !!(before && before.surface_form === 'に' && before.pos === '助詞') }));
+    i = j - 1;
+  }
+  return out;
+}
+// Sens approximatif en français, à partir du sens de base (« manger ») et des morceaux
+function gistOf(c, base) {
+  let x = (base || '').split(/[;,；、/]/)[0].replace(/^\s*(to|se)\s+/i, m => /se/i.test(m) ? m : '').replace(/\(.*?\)/g, '').trim() || c.base;
+  if (c.adj) x = 'être ' + x;
+  const ops = c.parts.map(p => p.op);
+  const has = o => ops.includes(o);
+  let pre = '', post = '';
+  // tournures d'abord
+  const after = c.after || '';
+  if ((has('negcond') && (ops.includes('become') || /^(いけ|なら|だめ)/.test(after))) || has('must')) return `devoir ${x} (il faut)`;
+  if (has('teha') && /^(いけ|なら|だめ|駄目)/.test(after)) return `ne pas devoir ${x} (interdit)`;
+  if (has('perm')) return `pouvoir ${x} (permission)`;
+  if (has('caus') && has('please')) return `laisse-moi ${x}, s'il te plaît`;
+  for (let k = 0; k < c.parts.length; k++) {
+    const o = c.parts[k].op, last = k === c.parts.length - 1;
+    if (o === 'caus') x = 'faire ' + x;
+    else if (o === 'pot') x = c.byNi ? `subir « ${x} » (passif : se faire…)` : `pouvoir ${x} / subir « ${x} » (passif)`;
+    else if (o === 'want') x = 'vouloir ' + x;
+    else if (o === 'prog') x = `être en train de ${x} (ou état durable)`;
+    else if (o === 'res') x = 'avoir été ' + x;
+    else if (o === 'comp') x = 'finir par ' + x;
+    else if (o === 'try') x = 'essayer de ' + x;
+    else if (o === 'prep') x = x + ' à l\'avance';
+    else if (o === 'seem') x = 'avoir l\'air de ' + x;
+    else if (o === 'hear') x = 'il paraît : ' + x;
+    else if (o === 'too') x = 'trop ' + x;
+    else if (o === 'come') x = 'se mettre à ' + x;
+    else if (o === 'start') x = 'commencer à ' + x;
+    else if (o === 'neg') x = 'ne pas ' + x;
+    else if (o === 'past') pre = 'au passé : ';
+    else if (o === 'pol') post = ' (poli)';
+    else if (o === 'vol') x = `on va ${x} ! / ${x}, allons-y`;
+    else if (o === 'cond') pre = 'si / quand : ';
+    else if (o === 'negcond') { x = 'ne pas ' + x; pre = 'si : '; }
+    else if (o === 'please') x = 's\'il te plaît, ' + x;
+    else if (o === 'wantyou') x = 'je veux que tu ' + x.replace(/^(\S+)/, '$1');
+    else if (o === 'favor') x = x + ' (pour quelqu\'un)';
+    else if (o === 'list') x = x + ', entre autres';
+    else if (o === 'while') x = 'tout en ' + x;
+    else if (o === 'te' && last) {
+      if (ops[k - 1] === 'neg') x = x + ' ! (demande : ne… pas)';
+      else if (!c.after || /^[！!。…、？?〜ー]/.test(c.after)) post += ' ! (demande familière : « fais-le »)';
+      else post += '… (et / en …ant)';
+    }
+  }
+  if (c.imp) x = x + ' ! (ordre)';
+  return (pre + x + post).replace(/ne pas ne pas /g, '').replace(/\b(de|que) ([aeéêiouy])/gi, (m, a, v) => (a === 'de' ? "d'" : "qu'") + v);
+}
+
+
 // ── Bibliothèques externes (chargées seulement quand on en a besoin) ──
 const KUROMOJI_SRC = [
   { js: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js', dict: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/' },
@@ -942,7 +1206,8 @@ async function fetchBytes(url, onBytes, stallMs = 25000) {
 }
 const KDICT = { 'base.dat.gz': 3956825, 'check.dat.gz': 3111633, 'tid.dat.gz': 1605820, 'tid_pos.dat.gz': 5916009, 'tid_map.dat.gz': 1485576, 'cc.dat.gz': 1692067, 'unk.dat.gz': 10512, 'unk_pos.dat.gz': 10540, 'unk_map.dat.gz': 1190, 'unk_char.dat.gz': 306, 'unk_compat.dat.gz': 338, 'unk_invoke.dat.gz': 1140 };
 const mb = n => (n / 1048576).toFixed(1).replace('.', ',');
-let tokenizerPromise = null;
+let tokenizerPromise = null, TK = null;
+const kdictCached = () => load('nihongo_kdict', 0) === 1;
 // Le dictionnaire du découpeur (≈ 18 Mo) est téléchargé une seule fois, puis gardé sur l'appareil (IndexedDB).
 function getTokenizer(onStatus = () => { }) {
   if (tokenizerPromise) return tokenizerPromise;
@@ -975,7 +1240,7 @@ function getTokenizer(onStatus = () => { }) {
     } catch (e) { await IDB.delRange('imgs', 'kuromoji:', 'kuromoji:\uffff').catch(() => { }); throw e; }   // copie abîmée : on retéléchargera
     finally { XMLHttpRequest.prototype.open = open; urls.forEach(u => URL.revokeObjectURL(u)); }
   })();
-  tokenizerPromise.catch(() => { tokenizerPromise = null; });
+  tokenizerPromise.then(tk => { TK = tk; store('nihongo_kdict', 1); }, () => { tokenizerPromise = null; });
   return tokenizerPromise;
 }
 async function getJSZip() {
@@ -1072,10 +1337,55 @@ const baseName = n => String(n || '').split(/[\\/]/).pop().replace(/\.[^.]+$/, '
 const IMG_RE = /\.(jpe?g|png|webp|avif|gif|bmp)$/i;
 const natSort = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true });
 
+// ── EPUB : texte (romans) → volume directement ; images (mangas) → pour mokuro ──
+async function readEpub(f) {
+  const JSZip = await getJSZip(), zip = await JSZip.loadAsync(f);
+  const txt = n => zip.file(n) ? zip.file(n).async('string') : Promise.resolve('');
+  const xml = s => new DOMParser().parseFromString(s, 'application/xml');
+  const enc = await txt('META-INF/encryption.xml');
+  if (enc && /EncryptedData/.test(enc)) {   // les polices « obfusquées » sont normales ; tout autre fichier chiffré = DRM
+    const drm = [...xml(enc).getElementsByTagNameNS('*', 'EncryptedData')].some(d => {
+      const alg = ((d.getElementsByTagNameNS('*', 'EncryptionMethod')[0] || { getAttribute: () => '' }).getAttribute('Algorithm') || '');
+      const uri = ((d.getElementsByTagNameNS('*', 'CipherReference')[0] || { getAttribute: () => '' }).getAttribute('URI') || '');
+      return !/idpf\.org\/2008\/embedding|ns\.adobe\.com\/pdf\/enc#RC/.test(alg) && !/\.(otf|ttf|woff2?)$/i.test(uri);
+    });
+    if (drm) return { drm: true };
+  }
+  const opfPath = (xml(await txt('META-INF/container.xml')).querySelector('rootfile') || { getAttribute: () => '' }).getAttribute('full-path') || Object.keys(zip.files).find(n => /\.opf$/i.test(n));
+  if (!opfPath) return { pages: [], images: [] };
+  const opf = xml(await txt(opfPath)), dir = opfPath.includes('/') ? opfPath.replace(/[^/]+$/, '') : '';
+  const resolve = (base, href) => { const parts = (base + decodeURIComponent(href.split('#')[0])).split('/'), o = []; for (const x of parts) { if (x === '..') o.pop(); else if (x !== '.') o.push(x); } return o.join('/'); };
+  const man = new Map([...opf.querySelectorAll('manifest > item')].map(it => [it.getAttribute('id'), it.getAttribute('href')]));
+  const spine = [...opf.querySelectorAll('spine > itemref')].map(r => man.get(r.getAttribute('idref'))).filter(Boolean).map(h => resolve(dir, h));
+  const title = ((opf.getElementsByTagNameNS('*', 'title')[0] || {}).textContent || '').trim() || f.name.replace(/\.epub$/i, '');
+  const pages = [], images = [], seen = new Set();
+  for (const path of spine) {
+    const raw = await txt(path); if (!raw) continue;
+    let doc = new DOMParser().parseFromString(raw, 'application/xhtml+xml');
+    if (doc.querySelector('parsererror')) doc = new DOMParser().parseFromString(raw, 'text/html');
+    const base = path.includes('/') ? path.replace(/[^/]+$/, '') : '';
+    for (const im of doc.querySelectorAll('img, image')) {
+      const h = im.getAttribute('src') || im.getAttribute('xlink:href') || im.getAttributeNS('http://www.w3.org/1999/xlink', 'href'); if (!h) continue;
+      const ip = resolve(base, h); if (seen.has(ip) || !zip.file(ip)) continue; seen.add(ip); images.push({ name: ip, file: await zip.file(ip).async('blob') });
+    }
+    doc.querySelectorAll('rt, rp, script, style').forEach(e => e.remove());
+    const body = doc.body || doc.documentElement;
+    let paras = [...body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, dd')].map(e => e.textContent);
+    if (!paras.length) paras = (body.textContent || '').split(/\n+/);
+    const blocks = paras.map(s => s.replace(/\s+/g, '').trim()).filter(s => /[぀-ヿ一-鿿]/.test(s)).map(s => ({ box: null, v: false, fs: 0, text: s }));
+    if (blocks.length) pages.push({ img: '', w: 0, h: 0, blocks });
+  }
+  return { title, pages, images };
+}
 async function expandFiles(fileList) {
   const out = [];
   for (const f of fileList) {
-    if (/\.(zip|cbz)$/i.test(f.name)) {
+    if (/\.epub$/i.test(f.name)) {
+      setStatus(`Ouverture de ${f.name}…`);
+      const ep = await readEpub(f);
+      out.push({ name: f.name, epub: ep });
+      if (ep.images) for (const im of ep.images) out.push(im);
+    } else if (/\.(zip|cbz)$/i.test(f.name)) {
       setStatus(`Ouverture de ${f.name}…`);
       const JSZip = await getJSZip(), zip = await JSZip.loadAsync(f);
       for (const e of Object.values(zip.files)) {
@@ -1190,6 +1500,98 @@ async function fillMeanings(v, force) {
 }
 const meaning = w => w.fr || w.d || '';
 
+// ── Kanji de mes mangas ──
+let MK = null;
+function mangaKanji() {
+  const sig = LIB.map(v => v.id + ':' + v.words.length).join();
+  if (MK && MK.sig === sig) return MK;
+  const freq = new Map();
+  for (const v of LIB) for (const pg of v.pages) for (const b of pg.blocks) for (const t of (b.t || [])) for (const ch of t[0]) if (/[一-鿿]/.test(ch)) freq.set(ch, (freq.get(ch) || 0) + 1);
+  const known = new Set(DATA.kanji.map(x => x.jp));
+  const inQuiz = DATA.kanji.filter(x => freq.has(x.jp)).sort((a, b) => freq.get(b.jp) - freq.get(a.jp));
+  const outside = [...freq.keys()].filter(k => !known.has(k)).sort((a, b) => freq.get(b) - freq.get(a));
+  return MK = { sig, freq, inQuiz, outside };
+}
+function mangaExamples(ch) {
+  const seen = new Map();
+  for (const v of LIB) for (const w of v.words) if (w.jp.includes(ch) && !w.ign) { const o = seen.get(w.jp); if (o) o.n += w.n; else seen.set(w.jp, { w, n: w.n }); }
+  const top = [...seen.values()].sort((a, b) => b.n - a.n).slice(0, 4);
+  const n = (mangaKanji().freq.get(ch) || 0);
+  return top.length ? `<span class="t">Dans tes mangas · vu ${n} fois</span>${top.map(({ w }) => `<span class="jp">${esc(w.jp)}</span> ${esc(w.kana)}${meaning(w) ? ' — ' + esc(meaning(w).split(/[;；]/)[0]) : ''}`).join('<br>')}` : '';
+}
+
+// ── Bulles à réviser (clé SRS « b:volume:page:bulle ») ──
+const bKey = (v, p, bi) => `b:${v.id}:${p}:${bi}`;
+const bubbleSaved = k => !!(SRS[k] && !SRS[k].del);
+function setBubble(k, on) {
+  if (on) { if (!bubbleSaved(k)) SRS[k] = { c: 0, w: 0, lvl: 0, due: 0, add: true }; SRS[k].t = Date.now(); }
+  else SRS[k] = { c: 0, w: 0, lvl: 0, due: 0, del: 1, t: Date.now() };
+  saveSRS();
+}
+function bubbleList() {
+  const out = [];
+  for (const k in SRS) {
+    if (!k.startsWith('b:') || SRS[k].del) continue;
+    const [, vid, p, bi] = k.split(':'), v = LIB.find(x => x.id === +vid), b = v && v.pages[+p] && v.pages[+p].blocks[+bi];
+    if (b) out.push({ k, v, p: +p, bi: +bi, b });
+  }
+  return out;
+}
+const romajiLine = b => (b.t || []).map(([s, rd]) => /[぀-ヿ一-鿿]/.test(s) ? romajiOf(kataToHira(rd || s)) : s).join(' ').replace(/ ([、。！？!?…])/g, '$1');
+function bubbleWordsHTML(v, b) {
+  const byJp = new Map(v.words.map(w => [w.jp, w])), seen = new Set();
+  return (b.t || []).map(t => t[2]).filter(x => x && byJp.has(x) && !seen.has(x) && seen.add(x)).map(jp => { const w = byJp.get(jp);
+    return `<span class="jp">${esc(w.jp)}</span>${hasKanji(w.jp) ? ' ' + esc(w.kana) : ''} — ${esc(meaning(w).split(/[;；]/).slice(0, 2).join(' ;') || '?')}`; }).join('<br>');
+}
+function bubbleSource() {
+  const items = bubbleList();
+  if (items.length && !TK && kdictCached()) getTokenizer().catch(() => { });
+  return { items, pool: items, name: 'Mes bulles', keyOf: it => it.k, game: 'flash',
+    empty: 'Aucune bulle pour l\'instant. Dans 漫画 Manga, ouvre un volume → 📖 Lire, touche une bulle puis « 💬 Réviser cette bulle ».',
+    restart: () => render(),
+    make: it => {
+      const text = blockText(it.b), e = SRS[it.k] || {}, words = bubbleWordsHTML(it.v, it.b);
+      return { key: it.k, prompt: text, pClass: text.length > 12 ? 'sm' : 'md', label: 'Que dit cette bulle ?', speakText: text,
+        context: `📖 ${esc(it.v.title)}${it.v.pages.length > 1 ? ' · p.' + (it.p + 1) : ''} <button class="say" data-say="${esc(text)}" title="Écouter">🔊</button>`,
+        visual: it.b.box && hasImages(it.v) ? el => fillCrop(el, it.v, { p: it.p, b: it.bi }, 170) : null,
+        reveal: { html: true, main: `<div class="bub-furi">${tokensHTML(it.v, it.b, 'kana')}</div>`, sub: romajiLine(it.b), fr: e.note || '' },
+        resultText: e.note || romajiLine(it.b),
+        explainHTML: `${words ? `<span class="t">Mots</span>${words}` : ''}<div id="qGram"></div>
+          <div class="note-row"><input class="word-fr" id="bNote" placeholder="ma traduction (facultatif)" value="${esc(e.note || '')}"><button class="small-btn" id="bDel" title="Retirer cette bulle">🗑</button></div>`,
+        afterReveal: () => {
+          fillGram($('qGram'), it.v, text);
+          $('bNote').onchange = () => { const x = SRS[it.k]; if (x) { x.note = $('bNote').value.trim(); x.t = Date.now(); saveSRS(); } };
+          $('bDel').onclick = () => { if (confirm('Retirer cette bulle de tes révisions ?')) { setBubble(it.k, false); $('bDel').disabled = true; $('bDel').textContent = 'retirée'; } };
+        } };
+    } };
+}
+
+// ── Grammaire d'une bulle (décomposeur) ──
+async function fillGram(el, v, text) {
+  if (!el) return;
+  if (!TK) {
+    if (!kdictCached() && !tokenizerPromise) {
+      el.innerHTML = `<div class="gram"><button class="small-btn" data-gram>🧩 Expliquer la grammaire</button> <span class="gram-note">télécharge le dictionnaire japonais (17 Mo) une seule fois</span></div>`;
+      el.querySelector('[data-gram]').onclick = () => { el.innerHTML = '<div class="gram gram-note">Téléchargement…</div>'; getTokenizer(m => { const n = el.querySelector('.gram-note'); if (n) n.textContent = m; }).then(() => fillGram(el, v, text), () => { el.innerHTML = '<div class="gram gram-note">Téléchargement impossible (connexion ?). Réessaie plus tard.</div>'; }); };
+      return;
+    }
+    el.innerHTML = '<div class="gram gram-note">🧩 Analyse de la grammaire…</div>';
+    try { await getTokenizer(); } catch (e) { el.innerHTML = ''; return; }
+  }
+  if (!el.isConnected) return;
+  const chains = deconjugate(TK.tokenize(text));
+  if (!chains.length) { el.innerHTML = ''; return; }
+  const vm = new Map(((v && v.words) || []).map(w => [w.jp, meaning(w)]));
+  const missing = [...new Set(chains.map(x => x.base))].filter(b => !vm.get(b) && !BASIC_FR[b]);
+  if (missing.length && DICTS.length) { const f = await lookupMany(missing.map(b => ({ jp: b, kana: '' }))).catch(() => new Map()); f.forEach((g, k) => g && vm.set(k, g)); }
+  if (!el.isConnected) return;
+  el.innerHTML = `<div class="gram"><div class="gram-t">🧩 Verbes et adjectifs conjugués</div>${chains.map(ch => {
+    const m = vm.get(ch.base) || BASIC_FR[ch.base] || '';
+    return `<div class="gram-c"><div class="gram-w kh">${esc(ch.surface)}</div>
+      <div class="gram-parts"><span class="gp head"><b>${esc(ch.base)}</b><small>${esc(m.split(/[;；]/)[0] || 'forme de base')}</small></span>${ch.parts.filter(x => x.label).map(x => `<span class="gp"><b>${esc(x.s)}</b><small>${esc(x.label)}</small></span>`).join('')}${ch.imp ? '<span class="gp"><b>！</b><small>impératif (ordre)</small></span>' : ''}</div>
+      <div class="gram-g">≈ ${esc(gistOf(ch, m))}</div></div>`; }).join('')}</div>`;
+}
+
 // ── État ──
 let M = { vol: null, view: 'words', filter: 'learn', shown: 50, rev: 'flash', upTo: 0, furi: true, open: -1 };
 const mKey = w => 'm:' + w.jp;
@@ -1276,11 +1678,12 @@ document.addEventListener('click', e => {
   const hit = charAt(e.clientX, e.clientY); if (!hit) return;
   const SMALL = 'ゃゅょぁぃぅぇぉャュョァィゥェォ', t = hit.text; let i = hit.i, ch = t[i];
   if (!/[぀-ヿ]/.test(ch) || ch === 'ー' || ch === '・') return;
-  if (SMALL.includes(ch) && i > 0) { i--; ch = t[i]; }
-  if (SMALL.includes(t[i + 1] || '')) ch += t[i + 1];
-  if ((ch === 'っ' || ch === 'ッ') && t[i + 1] && /[぀-ヿ]/.test(t[i + 1])) ch += t[i + 1] + (SMALL.includes(t[i + 2] || '') ? t[i + 2] : '');
+  const small = c => !!c && SMALL.includes(c);
+  if (small(ch) && i > 0) { i--; ch = t[i]; }
+  if (small(t[i + 1])) ch += t[i + 1];
+  if ((ch === 'っ' || ch === 'ッ') && t[i + 1] && /[぀-ヿ]/.test(t[i + 1])) ch += t[i + 1] + (small(t[i + 2]) ? t[i + 2] : '');
   const tip = $('khTip'); tip.innerHTML = `${esc(ch)}<b>${esc(romajiOf(kataToHira(ch)))}</b>`;
-  tip.style.left = Math.min(innerWidth - 50, Math.max(50, e.clientX)) + 'px'; tip.style.top = (e.clientY - 8) + 'px';
+  const hw = tip.offsetWidth / 2 + 8; tip.style.left = Math.min(innerWidth - hw, Math.max(hw, e.clientX)) + 'px'; tip.style.top = (e.clientY - 8) + 'px';
   tip.classList.add('show'); khShown = true; clearTimeout(khTimer); khTimer = setTimeout(() => tip.classList.remove('show'), 1800);
 }, true);
 
@@ -1296,8 +1699,8 @@ function renderLibrary() {
   const dl = 'https://github.com/yomidevs/jmdict-yomitan/releases/latest/download/';
   $('view').innerHTML = `
     <div class="drop" id="drop"><div class="big">📖</div><h3>Importer un manga</h3>
-      <p>Le fichier <b>.mokuro</b> du volume, idéalement <b>avec ses images</b> (sélectionne-les ensemble, ou un .cbz / .zip qui contient tout).<br>Le quiz extrait les mots, du plus fréquent au plus rare, et garde les pages pour la lecture.</p>
-      <input type="file" id="fileIn" multiple accept=".mokuro,.json,.zip,.cbz,image/*" hidden></div>
+      <p>Le fichier <b>.mokuro</b> du volume, idéalement <b>avec ses images</b> (sélectionne-les ensemble, ou un .cbz / .zip / .epub qui contient tout). Un <b>EPUB de roman</b> (texte) s'importe seul.<br>Le quiz extrait les mots, du plus fréquent au plus rare, et garde les pages pour la lecture.</p>
+      <input type="file" id="fileIn" multiple accept=".mokuro,.json,.zip,.cbz,.epub,image/*" hidden></div>
     <div class="btn-row"><button class="btn ghost sm" id="folderBtn">📁 Choisir un dossier</button><button class="btn ghost sm" id="pasteToggle">✍ Coller du texte</button></div>
     <input type="file" id="folderIn" webkitdirectory multiple hidden>
     <div id="pasteBox" class="hidden"><textarea class="paste" id="pasteIn" placeholder="Colle du texte japonais ici (une page, des sous-titres, un chapitre)"></textarea>
@@ -1369,6 +1772,13 @@ async function handleFiles(fileList, intoVol) {
     for (const m of mokFiles) {
       try { const obj = JSON.parse(await m.file.text()); const p = parseMokuro(obj); if (p.length) { pages = p; title = [obj.title, obj.volume].filter(Boolean).join(' — ') || baseName(m.name); break; } } catch (e) { }
     }
+    const ep = files.find(x => x.epub);
+    if (!pages && ep) {
+      if (ep.epub.drm) return setStatus('Cet EPUB est protégé (DRM) : il ne peut pas être ouvert ici.', true);
+      const chars = ep.epub.pages.reduce((a, p) => a + p.blocks.reduce((b, x) => b + x.text.length, 0), 0);
+      if (chars >= 300) return createVolume(ep.epub.pages, ep.epub.title, []);   // roman / texte : pas besoin de mokuro
+      return setStatus(`Cet EPUB ne contient que des images (${ep.epub.images.length} pages) : il faut d'abord le passer dans mokuro. Renomme-le en .zip, décompresse-le, lance mokuro sur le dossier des images, puis importe le .mokuro avec l'EPUB.`, true);
+    }
     if (!pages) return setStatus(imgs.length ? 'Ajoute aussi le fichier .mokuro du volume (les images seules ne contiennent pas le texte).' : 'Aucun fichier .mokuro valide trouvé.', true);
     await createVolume(pages, title, imgs);
   } catch (e) { setStatus('Import impossible : ' + (e.message || e), true); }
@@ -1407,7 +1817,7 @@ function renderVolume(v) {
       <input type="file" id="imgIn" multiple accept="image/*,.zip,.cbz" hidden></div>
     <div class="status" id="mStatus"></div>`;
   $('back').onclick = () => { M.vol = null; renderManga(); };
-  $('view').querySelectorAll('.row [data-act]').forEach(b => b.onclick = () => { M.view = b.dataset.act.slice(2); M.open = -1; renderVolume(v); });
+  $('view').querySelectorAll('.row [data-act]').forEach(b => b.onclick = () => { M.view = b.dataset.act.slice(2); M.open = -1; if (M.view !== 'review') M.prep = null; renderVolume(v); });
   $('exportAnki').onclick = () => exportAnki(v);
   if ($('pickBg')) $('pickBg').onclick = () => openBgPicker(v);
   $('addImgs').onclick = () => $('imgIn').click();
@@ -1452,7 +1862,7 @@ function renderWords(v, s) {
 }
 
 function mangaSource(v, mode) {
-  let items = v.words.filter(w => { const st = wordState(w); return (st === 'new' || st === 'learn') && (!M.upTo || w.f < M.upTo); });
+  let items = v.words.filter(w => { const st = wordState(w); return (st === 'new' || st === 'learn') && (M.prep ? M.prep.has(w.jp) : (!M.upTo || w.f < M.upTo)); });
   if (mode === 'reading' || mode === 'type') items = items.filter(w => hasKanji(w.jp));
   if (mode === 'meaning') items = items.filter(w => meaning(w));
   const now = Date.now();
@@ -1480,13 +1890,16 @@ function renderReview(v) {
   const modes = [['flash', '🃏 Cartes'], ['reading', 'Lecture QCM'], ['type', '✍ Lecture'], ['meaning', 'Sens QCM']];
   const np = v.pages.length;
   body.innerHTML = `<div class="row">${modes.map(([k, l]) => chip(l, M.rev === k, 'r:' + k, 'sub')).join('')}</div>
-    ${np > 1 ? `<div class="upto">Mots qui apparaissent avant la page <input type="number" id="upTo" min="0" max="${np}" value="${M.upTo || ''}" placeholder="toutes"> <span>/ ${np}</span></div>` : ''}
+    ${M.prep ? `<div class="prepbar">📚 Mots des ${esc(M.prepLabel)} <button class="small-btn" id="prepRead">📖 Reprendre la lecture</button><button class="small-btn" id="prepOff">✕</button></div>` : ''}
+    ${np > 1 && !M.prep ? `<div class="upto">Mots qui apparaissent avant la page <input type="number" id="upTo" min="0" max="${np}" value="${M.upTo || ''}" placeholder="toutes"> <span>/ ${np}</span></div>` : ''}
     <div id="revZone"></div>`;
   body.querySelectorAll('[data-act]').forEach(b => b.onclick = () => { M.rev = b.dataset.act.slice(2); renderVolume(v); });
+  if ($('prepOff')) $('prepOff').onclick = () => { M.prep = null; renderVolume(v); };
+  if ($('prepRead')) $('prepRead').onclick = () => { M.prep = null; M.view = 'read'; renderVolume(v); };
   if ($('upTo')) $('upTo').onchange = e => { M.upTo = Math.max(0, Math.min(np, +e.target.value || 0)); renderVolume(v); };
   const src = mangaSource(v, M.rev), need = M.rev === 'flash' ? 1 : 4;
   if (!src.items.length || src.pool.length < need) {
-    const why = !src.items.length && M.rev === 'flash' ? (M.upTo ? 'Tous les mots de ces pages sont connus. Passe aux suivantes !' : 'Tous les mots de ce tome sont connus ou ignorés. Bravo !')
+    const why = !src.items.length && M.rev === 'flash' ? (M.prep || M.upTo ? 'Tous les mots de ces pages sont connus. Passe aux suivantes !' : 'Tous les mots de ce tome sont connus ou ignorés. Bravo !')
       : M.rev === 'meaning' ? 'Il faut au moins 4 mots avec un sens : importe un dictionnaire ou note des sens.' : 'Pas assez de mots en kanji à apprendre pour ce mode.';
     $('revZone').innerHTML = `<div class="empty">${why}</div>`; return;
   }
@@ -1539,15 +1952,51 @@ function renderPage(v) {
     const [x1, y1, x2, y2] = b.box, fs = b.fs ? (b.fs / pg.w * 100).toFixed(2) : 2.4;
     return `<div class="bub${b.v ? ' vert' : ''}" data-b="${bi}" style="left:${x1 / pg.w * 100}%;top:${y1 / pg.h * 100}%;width:${(x2 - x1) / pg.w * 100}%;height:${(y2 - y1) / pg.h * 100}%;font-size:max(9px,${fs}cqw)">${esc(blockText(b))}</div>`;
   }).join('') : '';
+  if (M.lp !== v.id + ':' + p) { M.lp = v.id + ':' + p; M.looked = new Set(); }
   $('mBody').innerHTML = `
-    <div class="reader-nav"><button class="btn ghost" id="pPrev" ${p === 0 ? 'disabled' : ''}>‹</button><span>page ${p + 1} / ${n}</span><button class="btn ghost" id="pNext" ${p >= n - 1 ? 'disabled' : ''}>›</button></div>
+    <div class="reader-nav"><button class="btn ghost" id="pPrev" ${p === 0 ? 'disabled' : ''}>‹</button><button class="pjump" id="pJump" title="Aller à une page">page <b>${p + 1}</b> / ${n} ▾</button><button class="btn ghost" id="pNext" ${p >= n - 1 ? 'disabled' : ''}>›</button></div>
+    <div class="pjump-row hidden" id="pJumpRow"><input type="range" id="pRange" min="1" max="${n}" value="${p + 1}"><input type="number" class="type-input" id="pNum" min="1" max="${n}" value="${p + 1}" inputmode="numeric"><button class="small-btn ok" id="pGo">Aller</button></div>
     <div class="page-wrap" id="pageWrap" ${pg.w ? `style="aspect-ratio:${pg.w}/${pg.h}"` : ''}><img id="pageImg" alt="page ${p + 1}">${boxes}</div>
-    <div class="tip" style="margin-top:.6rem">Touche une bulle pour voir le texte avec furigana et le sens des mots. Sur PC, <b>Shift + survol</b> d'une bulle marche aussi avec Yomitan. Glisse ou utilise ← → pour tourner les pages.</div>`;
+    <div class="reader-acts"><button class="small-btn ok" id="pDone"></button><button class="small-btn" id="pPrep">📚 Préparer les 10 pages suivantes</button>
+      <button class="small-btn" id="pAuto" title="Ajouter automatiquement à tes révisions les mots que tu touches">${S.autoAdd === false ? '＋ auto : non' : '＋ auto : oui'}</button></div>
+    <div class="tip" style="margin-top:.6rem">Touche une bulle pour afficher son texte, puis <b>touche un mot</b> : lecture, sens et conjugaison. Les mots que tu touches partent dans tes révisions (＋ auto). « ✓ Page comprise » marque les autres nouveaux mots de la page comme connus. Glisse ou ← → pour tourner les pages.</div>`;
   pageURL(v, p).then(u => { const im = $('pageImg'); if (im && u) im.src = u; });
   pageURL(v, p + 1);
-  const go = d => { const np = Math.min(Math.max(0, p + d), n - 1); if (np === p) return; M.page = np; v.last = np; saveVol(v); hideSheet(); renderVolume(v); };
+  const go = d => { const np = Math.min(Math.max(0, p + d), n - 1); if (np === p) return; M.page = np; v.last = np; saveVol(v); hideSheet(); hideWordPop(); renderVolume(v); };
   $('pPrev').onclick = () => go(-1); $('pNext').onclick = () => go(1);
-  $('mBody').querySelectorAll('.bub').forEach(el => el.onclick = () => openSheet(v, p, +el.dataset.b));
+  const jump = () => { const np = Math.min(n, Math.max(1, Math.round(+$('pNum').value || p + 1))) - 1; if (np !== p) go(np - p); else $('pJumpRow').classList.add('hidden'); };
+  $('pJump').onclick = () => { const r = $('pJumpRow'); r.classList.toggle('hidden'); if (!r.classList.contains('hidden')) { $('pNum').focus(); $('pNum').select(); } };
+  $('pRange').oninput = () => { $('pNum').value = $('pRange').value; };
+  $('pRange').onchange = jump;
+  $('pNum').oninput = () => { $('pRange').value = $('pNum').value; };
+  $('pNum').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); jump(); } };
+  $('pGo').onclick = jump;
+  $('mBody').querySelectorAll('.bub').forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    const bi = +el.dataset.b, tk = e.target.closest('.tk');
+    if (!el.classList.contains('on')) return activateBubble(v, p, bi, el);
+    if (tk) wordPop(v, p, bi, +tk.dataset.ti, tk); else { hideWordPop(); openSheet(v, p, bi); }
+  });
+  $('pageWrap').addEventListener('click', e => { if (!e.target.closest('.bub')) { deactivateBubbles(); hideWordPop(); } });
+  const pdl = () => { const nw = pageNewWords(v, p); $('pDone').textContent = nw.length ? `✓ Page comprise (${nw.length} nouveau${nw.length > 1 ? 'x' : ''} mot${nw.length > 1 ? 's' : ''} → connu${nw.length > 1 ? 's' : ''})` : '✓ Page comprise →'; };
+  pdl(); M.pdl = pdl;
+  $('pDone').onclick = () => {
+    const nw = pageNewWords(v, p);
+    const undo = nw.map(w => [mKey(w), SRS[mKey(w)] ? JSON.parse(JSON.stringify(SRS[mKey(w)])) : null]);
+    nw.forEach(w => { const e = SRS[mKey(w)] || (SRS[mKey(w)] = { c: 0, w: 0, lvl: 0, due: 0 }); e.lvl = 6; e.known = true; e.due = Date.now() + 840 * 3600e3; e.t = Date.now(); });
+    if (nw.length) saveSRS();
+    if (p < n - 1) go(1); else renderVolume(v);
+    if (nw.length) toast(`✓ ${nw.length} mot${nw.length > 1 ? 's' : ''} marqué${nw.length > 1 ? 's' : ''} connu${nw.length > 1 ? 's' : ''}`, 'Annuler', () => {
+      for (const [k, e] of undo) SRS[k] = e ? Object.assign(e, { t: Date.now() }) : { c: 0, w: 0, lvl: 0, due: 0, known: false, t: Date.now() };
+      saveSRS(); if (M.pdl) M.pdl();
+    });
+  };
+  $('pPrep').onclick = () => {
+    const to = Math.min(n, p + 10), set = new Set();
+    for (let i = p; i < to; i++) for (const b of v.pages[i].blocks) for (const t of (b.t || [])) if (t[2]) set.add(t[2]);
+    M.prep = set; M.prepLabel = `pages ${p + 1} à ${to}`; M.view = 'review'; M.rev = 'flash'; renderVolume(v); scrollTo(0, 0);
+  };
+  $('pAuto').onclick = () => { S.autoAdd = S.autoAdd === false; saveSettings(); $('pAuto').textContent = S.autoAdd === false ? '＋ auto : non' : '＋ auto : oui'; };
   const wrap = $('pageWrap'); let sx = null;
   wrap.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
   wrap.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 60) go(dx > 0 ? 1 : -1); });
@@ -1560,8 +2009,10 @@ function openSheet(v, p, bi) {
   const ids = [...new Set((b.t || []).map(t => t[2]).filter(x => x && words.has(x)))];
   const draw = () => {
     $('sheetContent').innerHTML = `<div class="sheet-text kh">${tokensHTML(v, b, S.annot || 'kana')}</div>
-      <div class="sh-tools"><button class="small-btn" id="shAnnot">${{ kana: 'あ Furigana', romaji: 'a Romaji', none: '— Rien' }[S.annot || 'kana']}</button><button class="small-btn" id="shSpeak">🔊 Écouter</button><button class="small-btn" id="shCopy">📋 Copier</button></div>
+      <div class="sh-tools"><button class="small-btn" id="shAnnot">${{ kana: 'あ Furigana', romaji: 'a Romaji', none: '— Rien' }[S.annot || 'kana']}</button><button class="small-btn" id="shSpeak">🔊 Écouter</button><button class="small-btn" id="shCopy">📋 Copier</button>
+        <button class="small-btn${bubbleSaved(bKey(v, p, bi)) ? ' ok' : ''}" id="shSave">${bubbleSaved(bKey(v, p, bi)) ? '💬 En révision ✓' : '💬 Réviser cette bulle'}</button></div>
       <div class="hint" style="text-align:left">Touche un kana pour voir sa lecture.</div>
+      <div id="shGram"></div>
       ${ids.length ? ids.map(jp => { const i = words.get(jp), w = v.words[i], st = wordState(w);
         return `<div class="sh-word"><div class="sh-top"><span class="dot ${st}"></span><b class="wjp kh">${esc(w.jp)}</b>${hasKanji(w.jp) ? `<span class="wkana">${esc(w.kana)}</span>` : ''}<span class="wn">×${w.n}</span></div>
         <div class="sh-fr">${esc(meaning(w)) || '<span style="color:var(--muted)">pas de sens (importe un dictionnaire)</span>'}</div>
@@ -1571,6 +2022,8 @@ function openSheet(v, p, bi) {
     $('shAnnot').onclick = () => { S.annot = { kana: 'romaji', romaji: 'none', none: 'kana' }[S.annot || 'kana']; saveSettings(); draw(); };
     $('shSpeak').onclick = () => { const was = S.audio; S.audio = true; speak(blockText(b)); S.audio = was; };
     $('shCopy').onclick = () => navigator.clipboard && navigator.clipboard.writeText(blockText(b));
+    $('shSave').onclick = () => { const k = bKey(v, p, bi); setBubble(k, !bubbleSaved(k)); draw(); };
+    fillGram($('shGram'), v, blockText(b));
     $('sheetContent').querySelectorAll('[data-sx]').forEach(btn => btn.onclick = () => {
       const w = v.words[+btn.dataset.i], k = mKey(w), a = btn.dataset.sx;
       if (a === 'kn') srsMark(k, true); else if (a === 'unk') srsMark(k, false);
@@ -1582,7 +2035,85 @@ function openSheet(v, p, bi) {
 }
 function hideSheet() { const s = $('sheet'); if (s) s.classList.remove('show'); }
 function closeSheet() { hideSheet(); if (M.sheetDirty) { M.sheetDirty = false; const v = LIB.find(x => x.id === M.vol); if (v && S.tab === 'manga') { const y = scrollY; renderVolume(v); scrollTo(0, y); } } }
-function hidePop() { hideSheet(); }
+function hidePop() { hideSheet(); hideWordPop(); }
+
+// ── Mots touchés directement dans les bulles de la page ──
+const PARTICLES = { 'は': 'thème (« quant à… »)', 'が': 'sujet / « mais »', 'を': 'complément d\'objet', 'に': 'à, vers, dans (but, moment, lieu)', 'で': 'lieu de l\'action / moyen (« avec »)', 'と': 'et / avec / citation', 'の': 'de (possession) / transforme en nom', 'も': 'aussi / même', 'へ': 'vers', 'から': 'depuis / parce que', 'まで': 'jusqu\'à', 'より': 'que (comparaison) / depuis', 'か': 'question / ou', 'ね': 'n\'est-ce pas ? (connivence)', 'よ': 'je te le dis (affirmation)', 'な': 'exclamation / « ne… pas ! » (après un verbe)', 'ぞ': 'affirmation forte (masculin)', 'ぜ': 'allez ! (masculin, familier)', 'わ': 'affirmation douce', 'さ': 'tu vois / eh bien', 'って': 'citation (« il paraît », « ce qu\'on appelle »)', 'けど': 'mais / bien que', 'けれど': 'mais / bien que', 'のに': 'alors que (regret, reproche)', 'ので': 'parce que', 'し': 'et en plus', 'ば': 'si (condition)', 'でも': 'même / mais', 'しか': 'seulement (avec une négation)', 'だけ': 'seulement', 'ばかり': 'rien que / venir de', 'など': 'etc.', 'や': 'et (liste incomplète)', 'ぐらい': 'environ', 'くらい': 'environ', 'ほど': 'au point de / environ', 'かな': 'je me demande…', 'かしら': 'je me demande… (féminin)', 'だ': 'être (copule)', 'です': 'être (poli)', 'じゃ': 'eh bien / = では', 'ちゃ': '= ては' };
+function pageNewWords(v, p) {
+  const bases = new Set(); for (const b of v.pages[p].blocks) for (const t of (b.t || [])) if (t[2]) bases.add(t[2]);
+  return v.words.filter(w => bases.has(w.jp) && wordState(w) === 'new' && !(M.looked && M.looked.has(w.jp)));
+}
+function deactivateBubbles() { document.querySelectorAll('.bub.on').forEach(el => { el.classList.remove('on'); el.style.fontSize = el.dataset.fs || ''; el.textContent = el.dataset.txt || el.textContent; }); }
+function activateBubble(v, p, bi, el) {
+  deactivateBubbles(); hideWordPop();
+  const b = v.pages[p].blocks[bi]; if (!b) return;
+  if (!b.t) return openSheet(v, p, bi);
+  const byJp = new Map(v.words.map(w => [w.jp, w]));
+  el.dataset.txt = el.textContent; el.dataset.fs = el.style.fontSize;
+  el.innerHTML = b.t.map((t, ti) => { const w = t[2] && byJp.get(t[2]), st = w ? wordState(w) : ''; return `<span class="tk${w ? ' w ' + st : ''}" data-ti="${ti}">${esc(t[0])}</span>`; }).join('');
+  el.classList.add('on');
+  // réduit la police jusqu'à ce que le texte tienne dans la bulle
+  let fs = parseFloat(getComputedStyle(el).fontSize), k = 0;
+  while ((el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) && fs > 9 && k++ < 14) { fs *= .9; el.style.fontSize = fs + 'px'; }
+}
+function hideWordPop() { const w = $('wPop'); if (w) w.classList.remove('show'); document.querySelectorAll('.tk.sel').forEach(x => x.classList.remove('sel')); }
+function wordPop(v, p, bi, ti, anchor) {
+  const b = v.pages[p].blocks[bi], t = b.t[ti]; if (!t) return;
+  const w = t[2] ? v.words.find(x => x.jp === t[2]) : null;
+  document.querySelectorAll('.tk.sel').forEach(x => x.classList.remove('sel')); anchor.classList.add('sel');
+  if (w) { M.looked = M.looked || new Set(); M.looked.add(w.jp); }
+  let added = false;
+  if (w && S.autoAdd !== false && wordState(w) === 'new') { const k = mKey(w), e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 }); e.add = true; e.due = 0; e.t = Date.now(); saveSRS(); added = true; }
+  const text = blockText(b), off = b.t.slice(0, ti).reduce((a, x) => a + x[0].length, 0);
+  const pop = $('wPop');
+  const draw = () => {
+    const st = w ? wordState(w) : '', jp = w ? w.jp : t[0], kana = w ? w.kana : (t[1] || (hasKanji(t[0]) ? '' : t[0]));
+    const m = w ? meaning(w) : (PARTICLES[t[0]] || '');
+    pop.innerHTML = `<div class="wp-head"><b class="wp-jp kh">${esc(jp)}</b>${kana && kana !== jp ? `<span class="wp-rd">${esc(kana)}</span>` : ''}<span class="wp-ro">${esc(romajiOf(kataToHira(kana || jp)))}</span><button class="say" data-say="${esc(jp)}">🔊</button></div>
+      ${w && t[0] !== w.jp ? `<div class="wp-form">dans la bulle : <span class="jp">${esc(t[0])}</span></div>` : ''}
+      <div class="wp-fr">${m ? esc(m.split(/[;；]/).slice(0, 3).join(' ;')) : w ? '<span class="muted">pas de sens (importe un dictionnaire)</span>' : !PARTICLES[t[0]] ? '<span class="muted">mot outil</span>' : ''}</div>
+      <div id="wpGram"></div>
+      <div class="wp-btns">${w ? (st === 'done' ? `<span class="state done">connu</span><button class="small-btn" data-wp="unk">↺ À revoir</button>`
+        : st === 'learn' ? `<span class="state learn">${added ? '＋ ajouté à tes révisions' : 'en révision'}</span><button class="small-btn ok" data-wp="kn">✓ Je le connais</button>`
+        : st === 'ign' ? '<span class="state ign">ignoré</span>' : `<button class="small-btn" data-wp="add">＋ À apprendre</button><button class="small-btn ok" data-wp="kn">✓ Je le connais</button>`) : ''}
+        <button class="small-btn" data-wp="sheet">📄 Toute la bulle</button></div>`;
+    pop.querySelectorAll('[data-wp]').forEach(bt => bt.onclick = e => {
+      e.stopPropagation(); const a = bt.dataset.wp;
+      if (a === 'sheet') { hideWordPop(); return openSheet(v, p, bi); }
+      const k = mKey(w);
+      if (a === 'kn') srsMark(k, true); else if (a === 'unk') srsMark(k, false);
+      else { const e2 = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 }); e2.add = true; e2.due = 0; e2.t = Date.now(); saveSRS(); }
+      added = false; anchor.className = `tk w ${wordState(w)} sel`; draw(); if (M.pdl) M.pdl();
+    });
+    gram();
+  };
+  const gram = () => {
+    const g = $('wpGram'); if (!g) return;
+    if (!TK) { if (kdictCached() || tokenizerPromise) getTokenizer().then(() => { if (pop.classList.contains('show')) gram(); }, () => { }); return; }
+    const ch = deconjugate(TK.tokenize(text)).find(x => off >= x.start && off < x.start + x.surface.length);
+    if (!ch) { g.innerHTML = ''; return; }
+    const m = (w && meaning(w)) || BASIC_FR[ch.base] || '';
+    g.innerHTML = `<div class="wp-gram"><span class="jp">${esc(ch.surface)}</span> = <b class="jp">${esc(ch.base)}</b>${ch.parts.filter(x => x.label).map(x => ` + <span class="jp">${esc(x.s)}</span> <small>${esc(x.label)}</small>`).join('')}${ch.imp ? ' <small>(impératif)</small>' : ''}<div class="wp-gist">≈ ${esc(gistOf(ch, m))}</div></div>`;
+    place();
+  };
+  const place = () => {
+    const r = anchor.getBoundingClientRect(), pw = Math.min(320, innerWidth - 16), ph = pop.offsetHeight;
+    pop.style.width = pw + 'px';
+    pop.style.left = Math.max(8, Math.min(innerWidth - pw - 8, r.left + r.width / 2 - pw / 2)) + 'px';
+    pop.style.top = (r.bottom + 8 + ph < innerHeight ? r.bottom + 8 : Math.max(8, r.top - ph - 8)) + 'px';
+  };
+  draw(); pop.classList.add('show'); place();
+  if (S.audio) speak(w ? w.jp : t[0]);
+  if (M.pdl) M.pdl();
+}
+document.addEventListener('click', e => { const w = $('wPop'); if (w && w.classList.contains('show') && !e.target.closest('#wPop, .bub')) hideWordPop(); });
+addEventListener('scroll', () => { const w = $('wPop'); if (w && w.classList.contains('show')) hideWordPop(); }, { passive: true });
+let toastT = null;
+function toast(msg, action, fn) {
+  const t = $('toast'); t.innerHTML = `<span>${esc(msg)}</span>${action ? `<button class="small-btn">${esc(action)}</button>` : ''}`;
+  t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 6000);
+  if (action) t.querySelector('button').onclick = () => { t.classList.remove('show'); fn(); };
+}
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSheet();
   if (S.tab === 'manga' && M.view === 'read' && M.go && !e.target.matches('input, textarea')) { if (e.key === 'ArrowRight') M.go(1); if (e.key === 'ArrowLeft') M.go(-1); }
@@ -1725,8 +2256,9 @@ async function syncOnce() {
   const rp = await readRemote('nihongo/progress.json');
   const before = JSON.stringify(SRS);
   if (rp && rp.srs) mergeSRSInto(rp.srs);
-  if (JSON.stringify(SRS) !== before) store('nihongo_srs', SRS);
-  if (!rp || JSON.stringify(rp.srs) !== JSON.stringify(SRS)) writes.push({ path: 'nihongo/progress.json', blob: jsonBlob({ srs: SRS, by: SYNC.device, at: Date.now() }) });
+  if (rp && rp.hist) mergeHist(rp.hist);
+  if (JSON.stringify(SRS) !== before) { store('nihongo_srs', SRS); histSnap(); }
+  if (!rp || JSON.stringify(rp.srs) !== JSON.stringify(SRS) || JSON.stringify(rp.hist || {}) !== JSON.stringify(HIST)) writes.push({ path: 'nihongo/progress.json', blob: jsonBlob({ srs: SRS, hist: HIST, by: SYNC.device, at: Date.now() }) });
   // 2. bibliothèque
   const lib = (await readRemote('nihongo/library.json')) || { vols: [], deleted: [], dicts: [], deletedDicts: [] };
   const deleted = new Set([...(lib.deleted || []), ...load('nihongo_deleted', [])]);
@@ -1803,7 +2335,7 @@ async function syncNow() {
 function syncErrMsg(e) {
   if (!navigator.onLine) return 'Hors ligne : la synchro reprendra plus tard.';
   if (e.status === 'public') return 'Ce dépôt est PUBLIC : utilise un dépôt privé pour tes mangas.';
-  if (e.status === 401) return 'Token refusé (expiré ou mal copié).';
+  if (e.status === 401) return 'Token refusé (expiré ou mal copié) : ☁ → « Remplacer le token ». Rien n\'est perdu.';
   if (e.status === 404) return 'Dépôt introuvable : vérifie le nom et les droits du token.';
   if (e.status === 403) return 'GitHub refuse l\'accès (droits du token ou trop de requêtes, réessaie plus tard).';
   return 'Erreur de synchro : ' + (e.message || e.status || e);
@@ -1825,7 +2357,11 @@ function openSync() {
       Progression, mangas, pages, fonds et dictionnaires se synchronisent tout seuls. ${SYNC.last ? 'Dernière synchro : ' + new Date(SYNC.last).toLocaleString('fr-FR') + '.' : ''}</div>
     <div class="status" id="syncStatus">${esc(syncMsg)}</div>
     <button class="btn full" id="sNow">☁ Synchroniser maintenant</button>
-    <div class="btn-row"><button class="btn ghost sm" id="sAll">⬇ Toutes les pages ici (hors ligne)</button><button class="btn ghost sm" id="sOff">Déconnecter</button></div>` : `
+    <div class="btn-row"><button class="btn ghost sm" id="sAll">⬇ Toutes les pages ici (hors ligne)</button><button class="btn ghost sm" id="sOff">Déconnecter</button></div>
+    <details class="tokbox"${$('btnSync').dataset.state === 'err' && /Token/.test(syncMsg) ? ' open' : ''}><summary>🔑 Remplacer le token (expiré ou nouveau)</summary>
+      <div class="tip">Rien n'est perdu quand un token expire : tes données restent sur l'appareil et dans le dépôt. Crée un nouveau token (mêmes réglages) et colle-le ici, sur chaque appareil.</div>
+      <input class="type-input" id="sNewTok" type="password" placeholder="github_pat_…" style="width:100%;font-size:.85rem;margin:.4rem 0">
+      <button class="btn ghost sm" id="sTokGo">Valider le nouveau token</button></details>` : `
     <div class="tip"><b>Relie ton iPhone et tes ordinateurs.</b> Tes données vont dans un dépôt GitHub <b>privé</b> qui sert de coffre. Ton site (public) ne contient jamais tes mangas.</div>
     <div class="steps">
       <div><b>1.</b> Sur github.com : <i>New repository</i> → nom <code>nihongo-data</code> → <b>Private</b> → coche <i>Add a README</i> → <i>Create</i>.</div>
@@ -1840,6 +2376,12 @@ function openSync() {
   $('syncScreen').classList.add('show');
   if (on) {
     $('sNow').onclick = () => syncNow().then(() => openSync());
+    $('sTokGo').onclick = async () => {
+      const t = $('sNewTok').value.trim(); if (!t) return;
+      const old = SYNC.token; SYNC.token = t; setSyncState('busy', 'Vérification du token…');
+      try { remoteTree = null; await loadRemote(); store('nihongo_sync', SYNC); await syncNow(); openSync(); }
+      catch (e) { SYNC.token = old; setSyncState('err', syncErrMsg(e)); openSync(); }
+    };
     $('sOff').onclick = () => { if (confirm('Déconnecter cet appareil ? Tes données restent ici et dans le dépôt.')) { SYNC.token = ''; store('nihongo_sync', SYNC); setSyncState('off', ''); openSync(); } };
     $('sAll').onclick = async () => {
       for (const v of LIB) if (v.cloud && v.cloud.parts) for (let k = 0; k < v.cloud.parts; k++) { setSyncState('busy', `Téléchargement de « ${v.title} » (${k + 1}/${v.cloud.parts})…`); await cloudFetchPart(v, k); }
@@ -1874,10 +2416,13 @@ function openProgress() {
   for (const k in SRS) { const m = mastery(k); if (m >= 0) tot[m]++; if (isDue(k)) due++; }
   let h = `<div class="stats"><div class="stat"><b class="c-green">${tot[3]}</b><span>Maîtrisés</span></div><div class="stat"><b style="color:var(--cyan)">${tot[2] + tot[1]}</b><span>En cours</span></div>
     <div class="stat"><b class="c-red">${tot[0]}</b><span>À revoir</span></div><div class="stat"><b class="c-gold">${due}</b><span>À réviser maintenant</span></div></div>
+    ${(() => { const d = dailyKeys(), n = d.due.length + d.fresh.length; return n ? `<button class="btn full" id="pDaily" style="margin:.2rem 0 .8rem">▶ Révision du jour (${n})</button>` : ''; })()}
+    ${evolutionHTML()}
     <div class="legend"><span><i style="background:var(--surface);border:1px solid var(--border)"></i>Jamais vu</span><span><i style="background:var(--red)"></i>À revoir</span><span><i style="background:var(--gold)"></i>En cours</span><span><i style="background:var(--cyan)"></i>Bon</span><span><i style="background:var(--green)"></i>Maîtrisé</span></div>`;
   if (LIB.length) {
     h += `<div class="sec-title">漫画 Mes mangas</div>`;
-    LIB.forEach(v => { const s = volStats(v); h += `<div class="vol"><div class="vol-info"><div class="vol-title">${esc(v.title)}</div><div class="vol-stats">${s.cov} % des mots connus · ${s.done} connus · ${s.learn} en révision</div><div class="minibar"><div style="width:${s.cov}%"></div></div></div></div>`; });
+    LIB.forEach(v => { const s = volStats(v); h += `<div class="vol"><div class="vol-info"><div class="vol-title">${esc(v.title)}</div><div class="vol-stats">${s.cov} % des mots du tome connus · ${s.to90 ? `encore <b>${s.to90}</b> mots pour lire à 90 %` : 'prêt à lire 🎉'} · ${s.learn} en révision</div><div class="minibar"><div style="width:${s.cov}%"></div></div></div></div>`; });
+    const nb = bubbleList().length; if (nb) h += `<div class="tip">💬 ${nb} bulle${nb > 1 ? 's' : ''} en révision (onglet 文 Phrases → 💬 Mes bulles).</div>`;
   }
   for (const [name, data, keyFn, disp, wide] of sets) {
     const seen = data.filter(x => mastery(keyFn(x)) >= 0).length;
@@ -1885,12 +2430,13 @@ function openProgress() {
       return `<div class="cell ${wide ? 'w' : ''} ${m >= 0 ? 'l' + m : ''}" title="${esc(x.fr || x.romaji || x.point || '')}">${esc(disp(x))}</div>`; }).join('')}</div>`;
   }
   h += `<div class="sec-title">Sauvegarde</div>
-    <div class="tip">Ta progression est enregistrée dans ce navigateur. Pour la retrouver sur un autre appareil (PC ↔ iPhone), exporte-la ici puis importe le fichier de l'autre côté. Les images des mangas et le dictionnaire ne sont pas inclus : réimporte-les sur l'autre appareil.</div>
+    <div class="tip">Avec la synchro ☁, tout passe tout seul d'un appareil à l'autre. Ce fichier sert de copie de secours (progression et mots des mangas, sans les images).</div>
     <div class="btn-row"><button class="btn ghost" id="pExport">⬇ Exporter</button><button class="btn ghost" id="pImport">⬆ Importer</button></div>
     <input type="file" id="pFile" accept=".json" hidden>
     <button class="btn ko full" id="pReset" style="margin-top:.6rem">🗑 Tout effacer</button>`;
   $('progressContent').innerHTML = h;
   $('progressScreen').classList.add('show'); $('progressScreen').scrollTop = 0;
+  if ($('pDaily')) $('pDaily').onclick = () => $('btnDaily').click();
   $('pExport').onclick = () => {
     const vols = LIB.map(v => Object.assign({}, v, { hasImg: 0 }));
     const blob = new Blob([JSON.stringify({ app: 'nihongo-quiz', v: 3, srs: SRS, vols, settings: S })], { type: 'application/json' });
@@ -1914,8 +2460,34 @@ function openProgress() {
   };
   $('pReset').onclick = async () => {
     if (!confirm("Effacer toute ta progression et ta bibliothèque manga (images comprises) ? C'est définitif.\nLe dictionnaire importé est gardé.")) return;
-    SRS = {}; saveSRS(); LIB = []; await IDB.clear('vols').catch(() => { }); await IDB.clear('imgs').catch(() => { }); openProgress();
+    SRS = {}; HIST = {}; saveSRS(); LIB = []; await IDB.clear('vols').catch(() => { });
+    const keys = await IDB.req('imgs', 'readonly', st => st.getAllKeys()).catch(() => []);   // garde les dictionnaires
+    for (const k of keys || []) if (!/^(dict|kuromoji):/.test(String(k))) await IDB.del('imgs', k).catch(() => { });
+    openProgress();
   };
+}
+function evolutionHTML() {
+  histSnap();
+  const days = Object.keys(HIST).sort(); if (!days.length) return '';
+  const first = new Date(days[0] + 'T12:00'), n = Math.min(60, Math.max(7, Math.round((Date.now() - first) / 864e5) + 1));
+  const pts = []; let last = { k: 0, mw: 0 };
+  for (let i = n - 1; i >= 0; i--) { const d = dayKey(new Date(Date.now() - i * 864e5)), h = HIST[d];
+    if (h) last = h; pts.push({ d, k: h ? h.k : last.k, mw: h ? h.mw : last.mw, r: h ? Object.values(h.r || {}).reduce((a, b) => a + b, 0) : 0 }); }
+  const W = 320, H = 90, P = 4, max = Math.max(1, ...pts.map(p => p.k)), rmax = Math.max(1, ...pts.map(p => p.r));
+  const slot = (W - 2 * P) / pts.length, x = i => P + (i + .5) * slot, y = vv => H - P - vv / max * (H - 2 * P);
+  const fmt = d => new Date(d + 'T12:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.k).toFixed(1)}`).join('');
+  const bw = Math.max(2, Math.min(12, slot - 2));
+  const bars = pts.map((p, i) => p.r ? `<rect x="${(x(i) - bw / 2).toFixed(1)}" y="${(44 - p.r / rmax * 40).toFixed(1)}" width="${bw.toFixed(1)}" height="${(p.r / rmax * 40).toFixed(1)}" rx="1.5"><title>${fmt(p.d)} : ${p.r} révisions</title></rect>` : '').join('');
+  const dots = pts.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.k).toFixed(1)}" r="7" fill="transparent"><title>${fmt(p.d)} : ${p.k} maîtrisés · ${p.mw} mots de manga</title></circle>`).join('');
+  const week = pts.slice(-7).reduce((a, p) => a + p.r, 0), active = pts.filter(p => p.r).length, now = pts[pts.length - 1], ago = pts[Math.max(0, pts.length - 8)];
+  return `<div class="sec-title">📈 Ton évolution (${n} jours)</div>
+    <div class="evo"><div class="evo-h"><b>${now.k}</b> éléments maîtrisés <span>${now.k - ago.k >= 0 ? '+' : ''}${now.k - ago.k} en 7 jours</span></div>
+      <svg viewBox="0 0 ${W} ${H}" class="evo-svg" role="img" aria-label="Éléments maîtrisés par jour"><line x1="${P}" x2="${W - P}" y1="${H - P}" y2="${H - P}" class="ax"/><path d="${line}" class="ln"/><circle cx="${x(pts.length - 1)}" cy="${y(now.k)}" r="4" class="pt"/>${dots}</svg>
+      <div class="evo-ax"><span>${fmt(pts[0].d)}</span><span>aujourd'hui</span></div>
+      <div class="evo-h" style="margin-top:.7rem"><b>${now.r}</b> révisions aujourd'hui <span>${week} sur 7 jours · ${active} jour${active > 1 ? 's' : ''} actif${active > 1 ? 's' : ''}</span></div>
+      <svg viewBox="0 0 ${W} 46" class="evo-svg bars" role="img" aria-label="Révisions par jour"><line x1="${P}" x2="${W - P}" y1="45" y2="45" class="ax"/>${bars}</svg>
+      ${now.mw ? `<div class="evo-h" style="margin-top:.7rem"><b>${now.mw}</b> mots de tes mangas connus <span>${now.mw - ago.mw >= 0 ? '+' : ''}${now.mw - ago.mw} en 7 jours</span></div>` : ''}</div>`;
 }
 function closeProgress() { $('progressScreen').classList.remove('show'); render(); updateDueBadge(); }
 $('btnProgress').onclick = openProgress;
