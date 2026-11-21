@@ -1974,7 +1974,7 @@ function renderPage(v) {
     <div class="rfull-bar"><button id="fPrev" ${p === 0 ? 'disabled' : ''}>‹</button><span>${p + 1} / ${n}</span><button id="fNext" ${p >= n - 1 ? 'disabled' : ''}>›</button><button id="fExit" title="Quitter le plein écran">✕</button></div>
     <div class="reader-acts"><button class="small-btn ok" id="pDone"></button><button class="small-btn" id="pPrep">📚 Préparer les 10 pages suivantes</button>
       <button class="small-btn" id="pAuto" title="Ajouter automatiquement à tes révisions les mots que tu touches">${S.autoAdd === false ? '＋ auto : non' : '＋ auto : oui'}</button></div>
-    <div class="tip" style="margin-top:.6rem">Touche une bulle pour afficher son texte, puis <b>touche un mot</b> : lecture, sens et conjugaison. Les mots que tu touches partent dans tes révisions (＋ auto). « ✓ Page comprise » marque les autres nouveaux mots de la page comme connus. Pour tourner les pages : touche le <b>bord gauche</b> de l'image (suivante) ou le <b>bord droit</b> (précédente), glisse, ou ← →. <b>⛶ plein écran</b> : la page tient dans l'écran, idéal sur iPhone.</div>`;
+    <div class="tip" style="margin-top:.6rem">Touche une bulle pour afficher son texte, puis <b>touche un mot</b> : lecture, sens et conjugaison. Les mots que tu touches partent dans tes révisions (＋ auto). « ✓ Page comprise » marque les autres nouveaux mots de la page comme connus. Pour tourner les pages : touche le <b>bord droit</b> de l'image (suivante) ou le <b>bord gauche</b> (précédente), glisse vers la gauche pour avancer, ou ← →. <b>⛶ plein écran</b> : la page tient dans l'écran, idéal sur iPhone.</div>`;
   pageURL(v, p).then(u => { const im = $('pageImg'); if (im && u) im.src = u; });
   pageURL(v, p + 1);
   const go = d => { const np = Math.min(Math.max(0, p + d), n - 1); if (np === p) return; M.page = np; v.last = np; saveVol(v); hideSheet(); hideWordPop(); renderVolume(v); };
@@ -1992,13 +1992,13 @@ function renderPage(v) {
     if (!el.classList.contains('on')) return activateBubble(v, p, bi, el);
     if (tk) wordPop(v, p, bi, +tk.dataset.ti, tk); else { hideWordPop(); openSheet(v, p, bi); }
   });
-  // toucher hors bulle : ferme ce qui est ouvert, sinon tourne la page (gauche = suivante, comme un manga)
+  // toucher hors bulle : ferme ce qui est ouvert, sinon tourne la page (droite = suivante, gauche = précédente)
   $('pageWrap').addEventListener('click', e => {
     if (e.target.closest('.bub')) return;
     const open = document.querySelector('.bub.on') || ($('wPop') && $('wPop').classList.contains('show'));
     if (open) { deactivateBubbles(); hideWordPop(); return; }
     const r = $('pageWrap').getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
-    if (x < .33) go(1); else if (x > .67) go(-1); else if (document.body.classList.contains('rfull')) document.body.classList.toggle('rfull-ui');
+    if (x < .33) go(-1); else if (x > .67) go(1); else if (document.body.classList.contains('rfull')) document.body.classList.toggle('rfull-ui');
   });
   $('pPrev2').onclick = () => go(-1); $('pNext2').onclick = () => go(1);
   $('fPrev').onclick = () => go(-1); $('fNext').onclick = () => go(1);
@@ -2026,7 +2026,7 @@ function renderPage(v) {
   $('pAuto').onclick = () => { S.autoAdd = S.autoAdd === false; saveSettings(); $('pAuto').textContent = S.autoAdd === false ? '＋ auto : non' : '＋ auto : oui'; };
   const wrap = $('pageWrap'); let sx = null;
   wrap.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
-  wrap.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 60) go(dx > 0 ? 1 : -1); });
+  wrap.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1); });
   M.go = go;
 }
 
