@@ -2067,6 +2067,20 @@ function exitFull() { if (typeof M !== 'undefined') M.full = false; document.bod
 
 // ── Mots touchés directement dans les bulles de la page ──
 const PARTICLES = { 'は': 'thème (« quant à… »)', 'が': 'sujet / « mais »', 'を': 'complément d\'objet', 'に': 'à, vers, dans (but, moment, lieu)', 'で': 'lieu de l\'action / moyen (« avec »)', 'と': 'et / avec / citation', 'の': 'de (possession) / transforme en nom', 'も': 'aussi / même', 'へ': 'vers', 'から': 'depuis / parce que', 'まで': 'jusqu\'à', 'より': 'que (comparaison) / depuis', 'か': 'question / ou', 'ね': 'n\'est-ce pas ? (connivence)', 'よ': 'je te le dis (affirmation)', 'な': 'exclamation / « ne… pas ! » (après un verbe)', 'ぞ': 'affirmation forte (masculin)', 'ぜ': 'allez ! (masculin, familier)', 'わ': 'affirmation douce', 'さ': 'tu vois / eh bien', 'って': 'citation (« il paraît », « ce qu\'on appelle »)', 'けど': 'mais / bien que', 'けれど': 'mais / bien que', 'のに': 'alors que (regret, reproche)', 'ので': 'parce que', 'し': 'et en plus', 'ば': 'si (condition)', 'でも': 'même / mais', 'しか': 'seulement (avec une négation)', 'だけ': 'seulement', 'ばかり': 'rien que / venir de', 'など': 'etc.', 'や': 'et (liste incomplète)', 'ぐらい': 'environ', 'くらい': 'environ', 'ほど': 'au point de / environ', 'かな': 'je me demande…', 'かしら': 'je me demande… (féminin)', 'だ': 'être (copule)', 'です': 'être (poli)', 'じゃ': 'eh bien / = では', 'ちゃ': '= ては' };
+// pronoms et petits mots courants (exclus de la liste des mots à apprendre, mais utiles à comprendre)
+const SMALLWORDS = { 'あたし': 'moi, je (féminin, familier)', 'あたい': 'moi, je (féminin, très familier)', 'わたし': 'moi, je (neutre)', '私': 'moi, je (neutre / poli)', 'わたくし': 'moi, je (très poli)',
+  'ぼく': 'moi, je (garçon, doux)', '僕': 'moi, je (garçon, doux)', 'おれ': 'moi, je (masculin, familier)', '俺': 'moi, je (masculin, familier)', '俺様': 'moi (arrogant, « ma seigneurie »)', 'うち': 'moi (féminin, régional) / chez moi', '自分': 'soi-même / moi',
+  'あなた': 'toi, vous (poli / entre époux)', 'あんた': 'toi (familier, parfois sec)', 'おまえ': 'toi (familier, brusque)', 'お前': 'toi (familier, brusque)', 'てめえ': 'toi (insultant)', 'てめぇ': 'toi (insultant)', '手前': 'toi (insultant)', 'きさま': 'toi (insultant)', '貴様': 'toi (insultant)', 'きみ': 'toi (affectueux / d\'un supérieur)', '君': 'toi (affectueux / d\'un supérieur)',
+  '彼': 'lui / petit ami', 'かれ': 'lui / petit ami', '彼女': 'elle / petite amie', 'かのじょ': 'elle / petite amie', '彼ら': 'eux', 'みんな': 'tout le monde', '皆': 'tout le monde',
+  'こいつ': 'ce type-ci (familier)', 'そいつ': 'ce type (familier)', 'あいつ': 'ce type-là, lui/elle (familier)', 'どいつ': 'qui ? (familier)',
+  'これ': 'ceci', 'それ': 'cela', 'あれ': 'ça, là-bas / hein ?', 'どれ': 'lequel ?', 'ここ': 'ici', 'そこ': 'là', 'あそこ': 'là-bas', 'どこ': 'où ?',
+  'この': 'ce… -ci', 'その': 'ce… (près de toi)', 'あの': 'ce… -là / euh…', 'どの': 'quel… ?', 'こっち': 'par ici / moi', 'そっち': 'par là / toi', 'あっち': 'là-bas', 'どっち': 'lequel des deux ?',
+  'こんな': 'ce genre de… (ici)', 'そんな': 'ce genre de… / tel', 'あんな': 'ce genre de… (là-bas)', 'どんな': 'quel genre de… ?', 'こう': 'ainsi (comme ça)', 'そう': 'ainsi / c\'est ça', 'ああ': 'ainsi / ah !', 'どう': 'comment ?',
+  'だれ': 'qui ?', '誰': 'qui ?', 'なに': 'quoi ?', '何': 'quoi ? (なに / なん)', 'なん': 'quoi ?', 'いつ': 'quand ?', 'なぜ': 'pourquoi ?', 'なんで': 'pourquoi ?', 'どうして': 'pourquoi ? comment ?',
+  'こと': 'chose (abstraite) / le fait de…', '事': 'chose (abstraite) / le fait de…', 'もの': 'chose (concrète)', '物': 'chose (concrète)', 'ん': 'c\'est que… (explication) / = の', 'よう': 'comme / manière de…', 'ため': 'pour / à cause de',
+  'さん': 'M. / Mme (poli)', 'ちゃん': '(diminutif affectueux)', 'くん': '(garçon, camarade)', '君(くん)': '(garçon, camarade)', '様': '(très respectueux)', 'さま': '(très respectueux)', 'たち': '(pluriel : …et les autres)', '達': '(pluriel)', 'ら': '(pluriel)',
+  'する': 'faire', 'いる': 'être (là), se trouver (êtres vivants)', 'ある': 'y avoir, se trouver (objets)', 'なる': 'devenir', 'ない': 'ne pas y avoir / négation', 'はぁ': 'hein ?! (agacement)', 'はあ': 'hein ? / soupir', 'えっ': 'quoi ?! (surprise)', 'ええ': 'oui / euh', 'うん': 'ouais', 'ううん': 'non', 'おい': 'hé ! (familier)', 'ねえ': 'dis… / hé', 'ちょっと': 'un peu / attends !', 'もう': 'déjà / encore / ça suffit !', 'まだ': 'encore / pas encore', 'じゃあ': 'alors, bon', 'でも': 'mais', 'だって': 'parce que / même', 'けど': 'mais' };
+const smallWord = s => SMALLWORDS[s] || SMALLWORDS[kataToHira(s)] || PARTICLES[s] || '';
 function pageNewWords(v, p) {
   const bases = new Set(); for (const b of v.pages[p].blocks) for (const t of (b.t || [])) if (t[2]) bases.add(t[2]);
   return v.words.filter(w => bases.has(w.jp) && wordState(w) === 'new' && !(M.looked && M.looked.has(w.jp)));
@@ -2094,12 +2108,19 @@ function wordPop(v, p, bi, ti, anchor) {
   if (w && S.autoAdd !== false && wordState(w) === 'new') { const k = mKey(w), e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 }); e.add = true; e.due = 0; e.t = Date.now(); saveSRS(); added = true; }
   const text = blockText(b), off = b.t.slice(0, ti).reduce((a, x) => a + x[0].length, 0);
   const pop = $('wPop');
+  let extra = '', looking = false;
+  if (!w && !smallWord(t[0]) && DICTS.length && /[぀-ヿ一-鿿]/.test(t[0])) {   // pas dans la liste : on cherche quand même dans le dictionnaire
+    looking = true;
+    lookupMany([{ jp: t[0], kana: t[1] || '' }]).then(f => { extra = f.get(t[0]) || ''; looking = false; if (pop.classList.contains('show') && anchor.classList.contains('sel')) { draw(); place(); } }, () => { looking = false; });
+  }
   const draw = () => {
     const st = w ? wordState(w) : '', jp = w ? w.jp : t[0], kana = w ? w.kana : (t[1] || (hasKanji(t[0]) ? '' : t[0]));
-    const m = w ? meaning(w) : (PARTICLES[t[0]] || '');
+    const sw = smallWord(w ? w.jp : t[0]), dm = w ? meaning(w) : extra;
+    const m = sw && dm ? `${sw} ; ${dm}` : (sw || dm);
     pop.innerHTML = `<div class="wp-head"><b class="wp-jp kh">${esc(jp)}</b>${kana && kana !== jp ? `<span class="wp-rd">${esc(kana)}</span>` : ''}<span class="wp-ro">${esc(romajiOf(kataToHira(kana || jp)))}</span><button class="say" data-say="${esc(jp)}">🔊</button></div>
       ${w && t[0] !== w.jp ? `<div class="wp-form">dans la bulle : <span class="jp">${esc(t[0])}</span></div>` : ''}
-      <div class="wp-fr">${m ? esc(m.split(/[;；]/).slice(0, 3).join(' ;')) : w ? '<span class="muted">pas de sens (importe un dictionnaire)</span>' : !PARTICLES[t[0]] ? '<span class="muted">mot outil</span>' : ''}</div>
+      <div class="wp-fr">${m ? esc(m.split(/[;；]/).slice(0, 3).join(' ;')) : w ? `<span class="muted">${DICTS.length ? 'pas trouvé dans ton dictionnaire (le dictionnaire anglais est plus complet)' : 'pas de sens (importe un dictionnaire)'}</span>` : `<span class="muted">${looking ? 'recherche…' : 'petit mot de grammaire : il se comprend avec le reste de la phrase (touche les mots voisins ou « Toute la bulle »)'}</span>`}</div>
+      ${!w && m ? '<div class="wp-form">mot courant, hors de ta liste à apprendre</div>' : ''}
       <div id="wpGram"></div>
       <div class="wp-btns">${w ? (st === 'done' ? `<span class="state done">connu</span><button class="small-btn" data-wp="unk">↺ À revoir</button>`
         : st === 'learn' ? `<span class="state learn">${added ? '＋ ajouté à tes révisions' : 'en révision'}</span><button class="small-btn ok" data-wp="kn">✓ Je le connais</button>`
