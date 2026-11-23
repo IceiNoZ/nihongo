@@ -316,6 +316,8 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .tokbox{margin-top:.7rem;font-size:.85rem}.tokbox summary{cursor:pointer;color:var(--muted);padding:.3rem 0}
 .icon-btn.daily{width:auto;padding:0 .7rem;gap:.3rem;color:var(--gold);border-color:var(--gold);font-size:.85rem}.icon-btn.daily b{font-family:var(--mono);font-size:.8rem}
 .icon-btn.hidden{display:none}
+.lesson-day{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:.55rem .75rem;margin:-.2rem 0 .6rem;font-family:var(--sans);font-size:.85rem;line-height:1.45}
+.lesson-day summary{cursor:pointer;color:var(--text)}.lesson-day summary b{color:var(--accent)}.lesson-day div{margin:.45rem 0 .3rem}.lesson-day small{color:var(--muted);font-size:.72rem}.lesson-day.done{border-color:var(--border);color:var(--muted)}
 .dailybar{display:flex;align-items:center;gap:.7rem;background:var(--surface);border:1px solid var(--gold);border-radius:12px;padding:.55rem .7rem;margin-bottom:.6rem;font-size:.8rem}
 .dailybar b{display:block;color:var(--gold);font-family:var(--mono);letter-spacing:.05em}.dailybar span{color:var(--muted);font-size:.72rem;font-family:var(--sans)}
 .badge.tag{background:var(--surface);color:var(--text);border:1px solid var(--border);text-transform:none;letter-spacing:0}
@@ -526,7 +528,7 @@ function saveSRS() { if (!store('nihongo_srs', SRS)) console.warn('Sauvegarde im
 function srsGet(k) { return SRS[k]; }
 function srsUpdate(k, ok) {
   const e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 });
-  if (ok) { e.c++; e.lvl = Math.min(6, e.lvl + 1); } else { e.w++; e.lvl = e.lvl > 2 ? 1 : 0; }
+  if (ok) { e.c++; e.lvl = Math.min(6, e.lvl + 1); } else { e.w++; e.lvl = e.lvl > 2 ? 1 : 0; }   // un mot « connu » le reste ; son niveau baisse et il revient en priorité
   delete e.del; const hd = histDay(), dev = typeof SYNC !== 'undefined' && SYNC.device || 'ici'; hd.r[dev] = (hd.r[dev] || 0) + 1;
   e.due = Date.now() + INTERVALS_H[e.lvl] * 3600e3; e.t = Date.now();
   saveSRS();
@@ -535,15 +537,27 @@ function srsMark(k, known) { const e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0,
 function mastery(k) { const e = SRS[k]; if (!e || e.del || (e.c + e.w === 0 && !e.known)) return -1; if (e.lvl >= 4) return 3; if (e.lvl === 3) return 2; if (e.lvl >= 1) return 1; return 0; }
 // clés de la révision du jour : tout ce qui est dû + les mots/bulles ajoutés récemment et jamais révisés
 const FRESH_MAX = 15;
+// Une nouvelle leçon de grammaire par jour, dans la révision du jour
+const lessonKeys = li => DATA.grammar[li].questions.map((_, qi) => `g:${li}:${qi}`);
+function lessonOfDay() {
+  const today = dayKey(); let st = load('nihongo_lesson', null);
+  if (!st || st.day !== today || !DATA.grammar[st.li]) {
+    const li = DATA.grammar.findIndex((_, i) => !lessonKeys(i).some(k => SRS[k]));
+    if (li < 0) return null;
+    st = { day: today, li }; store('nihongo_lesson', st);
+  }
+  return st.li;
+}
 function dailyKeys() {
   const due = [], fresh = [];
   for (const k in SRS) { const e = SRS[k]; if (isDue(k)) due.push(k); else if (!e.del && e.add && !e.known && e.c + e.w === 0 && /^[mb]:/.test(k)) fresh.push(k); }
   fresh.sort((a, b) => (SRS[b].t || 0) - (SRS[a].t || 0));
-  return { due, fresh: fresh.slice(0, FRESH_MAX) };
+  const li = lessonOfDay(), lesson = li == null ? [] : lessonKeys(li).filter(k => !SRS[k] && !due.includes(k));
+  return { due, fresh: fresh.slice(0, FRESH_MAX), lesson, li };
 }
 function updateDueBadge() {
   const b = $('dueBadge'), d = $('btnDaily'); if (!b) return;
-  const { due, fresh } = dailyKeys(), n = due.length + fresh.length;
+  const { due, fresh, lesson } = dailyKeys(), n = due.length + fresh.length + lesson.length;
   b.classList.add('hidden');
   if (d) { $('dailyN').textContent = n > 99 ? '99+' : n; d.classList.toggle('hidden', !n); }
 }
@@ -621,6 +635,7 @@ function getSource() {
     } };
   }
   if (t === 'mots') {
+    if (S.mots.set === 'manga') return mangaKnownSource(S.mots);
     const c = S.mots, data = c.set === 'kata' ? DATA.kataWords : DATA.hiraWords;
     const key = x => x.jp + (x.jp === 'はな' || x.jp === 'かみ' ? '|' + x.fr : '');
     return { items: data, pool: data, name: c.set === 'kata' ? 'Mots katakana' : 'Mots hiragana', make: it => {
@@ -825,7 +840,8 @@ function showResult() {
   stopTimer();
   const done = Q.correct + Q.wrong, pct = done ? Math.round(Q.correct / done * 100) : 0;
   const [emoji, title] = pct === 100 ? ['🏆', 'PARFAIT !'] : pct >= 80 ? ['🎌', 'EXCELLENT !'] : pct >= 60 ? ['✨', 'BIEN JOUÉ !'] : pct >= 40 ? ['📚', 'CONTINUE !'] : ['🔄', 'À RETRAVAILLER'];
-  const errs = Q.mistakes.map(it => { const q = Q.source.make(it); const main = q.pClass === 'fr' ? (q.options.find(o => o.ok)?.t || '') : (q.html ? it.answer : q.prompt);
+  const errs = Q.mistakes.map(it0 => { const q = Q.source.make(it0), it = it0 && it0.s && it0.it ? it0.it : it0;   // révision du jour : élément d'origine
+    const main = q.pClass === 'fr' ? (q.options.find(o => o.ok)?.t || '') : (q.html ? it.answer : q.prompt);
     const r = q.resultText || (q.reveal ? [q.reveal.main, q.reveal.sub].filter(Boolean).join(' · ') : (q.answerText || q.after || q.prompt));
     return `<div class="err-item"><div class="k">${esc(main)}</div><div><div>${esc(q.html ? it.sentence.replace('___', it.answer) : r)}</div></div></div>`; }).join('');
   $('card').innerHTML = `<div class="result"><div class="emoji">${emoji}</div><h2>${title}</h2>
@@ -876,7 +892,14 @@ function renderControls() {
     if (c.set !== 'story') h += `<div class="row">${[['toFr', '漢 → sens'], ['toKanji', 'sens → 漢'], ['type', '✍ Taper la lecture']].map(([k, l]) => chip(l, c.dir === k, `kanji.dir:${k}`, 'sub')).join('')}</div>`;
   } else if (t === 'mots') {
     const c = S.mots;
-    h += `<div class="row">${chip('<span class="jp">ひらがな</span> Mots japonais', c.set === 'hira', 'mots.set:hira')}${chip('<span class="jp">カタカナ</span> Mots empruntés', c.set === 'kata', 'mots.set:kata')}</div>`;
+    h += `<div class="row">${chip('<span class="jp">ひらがな</span> Mots japonais', c.set === 'hira', 'mots.set:hira')}${chip('<span class="jp">カタカナ</span> Mots empruntés', c.set === 'kata', 'mots.set:kata')}${chip('漫画 Connus de mes mangas', c.set === 'manga', 'mots.set:manga')}</div>`;
+    if (c.set === 'manga' && LIB.length > 1) {
+      const cur = kanjiVols(c.vol).length === 1 ? String(c.vol) : 'all', short = t => t.length > 22 ? t.slice(0, 21) + '…' : t;
+      h += `<div class="row vol-chips">${chip('Tous les tomes', cur === 'all', 'mots.vol:all')}${LIB.map(v => chip(esc(short(v.title)), cur === String(v.id), 'mots.vol:' + v.id)).join('')}</div>`;
+    }
+    if (c.set === 'manga') { const n = new Set(), wk = new Set(); for (const v of kanjiVols(c.vol)) for (const w of v.words) if (!w.ign && wordState(w) === 'done') { n.add(w.jp); const e = SRS[mKey(w)]; if (e && e.lvl < 4) wk.add(w.jp); }
+      if (LIB.length) h += `<div class="row">${chip(`Tous (${n.size})`, c.filt !== 'weak', 'mots.filt:all', 'sub')}${chip(`À consolider (${wk.size})`, c.filt === 'weak', 'mots.filt:weak', 'sub')}</div>`;
+      h += `<div class="tip" style="margin:.2rem 0 .5rem">${LIB.length ? `<b>${n.size}</b> mot${n.size > 1 ? 's' : ''} marqué${n.size > 1 ? 's' : ''} connu${n.size > 1 ? 's' : ''} ${LIB.length > 1 && kanjiVols(c.vol).length === 1 ? 'dans ce tome' : 'dans tes mangas'}. Un mot raté <b>reste connu</b> mais passe dans « À consolider » et revient en premier, jusqu'à ce que tu le réussisses plusieurs fois de suite.` : 'Importe un manga dans 漫画 Manga pour vérifier ici les mots que tu as marqués connus.'}</div>`; }
     h += `<div class="row">${[['toFr', '日本語 → sens'], ['toJp', 'sens → 日本語'], ['type', '✍ Taper la lecture']].map(([k, l]) => chip(l, c.dir === k, `mots.dir:${k}`, 'sub')).join('')}</div>`;
   } else if (t === 'phrases') {
     const c = S.phrases;
@@ -899,7 +922,7 @@ function summary() {
   else if (t === 'kanji') { const c = S.kanji;
     p = [c.set === 'manga' && kanjiVols(c.vol).length === 1 && LIB.length > 1 ? '漫画 ' + kanjiVols(c.vol)[0].title : { kanji: 'Kanji seuls', words: 'Mots en kanji', manga: '漫画 Mes mangas', story: '📖 Histoires' }[c.set], c.lvl === 'all' ? 'Tous niveaux' : c.lvl === '+' ? 'Au-delà N4' : c.lvl];
     if (c.set !== 'story') p.push({ toFr: '漢→sens', toKanji: 'sens→漢', type: '✍ Lecture' }[c.dir]); }
-  else if (t === 'mots') { const c = S.mots; p = [c.set === 'kata' ? 'Mots empruntés' : 'Mots japonais', { toFr: '日本語→sens', toJp: 'sens→日本語', type: '✍ Lecture' }[c.dir]]; }
+  else if (t === 'mots') { const c = S.mots; p = [c.set === 'manga' ? (LIB.length > 1 && kanjiVols(c.vol).length === 1 ? '漫画 Connus · ' + kanjiVols(c.vol)[0].title : '漫画 Connus de mes mangas') + (c.filt === 'weak' ? ' · à consolider' : '') : c.set === 'kata' ? 'Mots empruntés' : 'Mots japonais', { toFr: '日本語→sens', toJp: 'sens→日本語', type: '✍ Lecture' }[c.dir]]; }
   else if (t === 'phrases') { const c = S.phrases; p = [{ simple: 'Phrases simples', mixed: 'Phrases mixtes', grammar: 'Grammaire N5', bubbles: '💬 Mes bulles' }[c.set]];
     if (c.set === 'grammar') p.push({ all: 'Tout', particules: 'Particules', verbes: 'Verbes', structures: 'Adjectifs & structures' }[c.cat]); }
   if (t === 'phrases' && S.phrases.set === 'bubbles') p.push(G.flash + ` (${bubbleList().length})`);
@@ -947,20 +970,25 @@ function dailySource() {
   take('phrases', 'phrases', { set: 'bubbles' }, '💬 bulle');
   Object.assign(S, JSON.parse(saved));
   if (typeof mangaSource === 'function') { const keep = [M.upTo, M.prep]; M.upTo = 0; M.prep = null; for (const v of LIB) subs.push({ s: mangaSource(v, 'flash'), tag: '漫画 ' + v.title }); [M.upTo, M.prep] = keep; }
-  const { due, fresh } = dailyKeys(), want = new Set([...due, ...fresh]), seen = new Set(), items = [];
+  const { due, fresh, lesson } = dailyKeys(), want = new Set([...due, ...fresh, ...lesson]), seen = new Set(), items = [];
   for (const { s, tag, noKh } of subs) {
     const kf = s.keyOf || (it => s.make(it).key);
     for (const it of s.items) { if (want.size === seen.size) break; let k; try { k = kf(it); } catch (e) { continue; } if (want.has(k) && !seen.has(k)) { seen.add(k); items.push({ s, it, k, tag, noKh }); } }
   }
-  return { items, pool: items, name: 'Révision du jour', keyOf: x => x.k, restart: () => render(),
+  // la leçon du jour d'abord (dans l'ordre), puis les révisions
+  const les = new Set(lesson), first = lesson.map(k => items.find(x => x.k === k)).filter(Boolean);
+  const ordered = [...first, ...orderItems(items.filter(x => !les.has(x.k)), x => x.k)];
+  return { items: ordered, pool: items, ordered: true, name: 'Révision du jour', keyOf: x => x.k, restart: () => render(),
     empty: 'Rien à réviser pour l\'instant 🎉<br><span style="font-size:.8rem">Les cartes reviennent quand c\'est le bon moment pour ta mémoire. Continue un onglet, ou lis ton manga.</span>',
     make: x => { const q = x.s.make(x.it); if (!q.options && !q.accept) q.flash = true; q.tag = x.tag; q.noKh = !!x.noKh; return q; } };
 }
 function renderDaily() {
-  const { due, fresh } = dailyKeys();
-  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}</span></div></div>`;
+  const { due, fresh, lesson, li } = dailyKeys(), L = li != null ? DATA.grammar[li] : null;
+  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}${L ? ` · 📘 leçon ${li + 1}/${DATA.grammar.length}` : ''}</span></div></div>
+    ${L ? `<details class="lesson-day"${lesson.length ? ' open' : ''}><summary>📘 Leçon du jour : <b>${esc(L.point)}</b>${lesson.length ? '' : ' ✓'}</summary><div>${esc(L.explanation)}</div>${lesson.length ? `<small>Lis-la, puis les ${lesson.length} premières questions de la session la mettent en pratique.</small>` : '<small>Faite ! Elle revient dans tes révisions au bon moment. Nouvelle leçon demain.</small>'}</details>`
+      : `<div class="lesson-day done">📘 Toutes les leçons de grammaire N5 sont commencées. Elles reviennent dans tes révisions.</div>`}`;
   $('dQuit').onclick = () => { DAILY = false; render(); };
-  startQuiz(dailySource(), { game: 'normal', total: 40 });
+  startQuiz(dailySource(), { game: 'normal', total: 40 + lesson.length, keepOrder: true });
 }
 $('btnAudio').onclick = () => { S.audio = !S.audio; saveSettings(); $('btnAudio').classList.toggle('on', S.audio); if (S.audio) speak('こんにちは'); };
 $('btnAudio').classList.toggle('on', S.audio);
@@ -1007,10 +1035,13 @@ function pagesFromText(txt) {
     .filter(s => /[぀-ヿ一-鿿]/.test(s)).map(s => ({ box: null, v: false, fs: 0, text: s }));
   return [{ img: '', w: 0, h: 0, blocks }];
 }
-const STOP = new Set(['する','いる','ある','なる','ない','こと','もの','よう','ん','の','そう','これ','それ','あれ','ここ','そこ','どこ','私','僕','俺','あなた','君','お前','彼','彼女','さん','ちゃん','くん','様','的','たち','中','時','方','前','上','今']);
+const STOP = new Set(['する','いる','ある','なる','ない','こと','もの','よう','ん','の','そう','これ','それ','あれ','ここ','そこ','どこ','私','僕','俺','あなた','君','お前','彼','彼女','さん','ちゃん','くん','様','的','たち']);
+const FORCE_NOUNS = new Set(['上','中','時','方','前','後','間','下','横','隣','外','内','奥','側']);
 const KEEP_POS = new Set(['名詞','動詞','形容詞','副詞','連体詞','接続詞','感動詞']);
 function isWordToken(t) {
   if (t.word_type === 'UNKNOWN' || !KEEP_POS.has(t.pos)) return false;
+  // 上・中・時・方… sont « non autonomes » pour le découpeur, mais ce sont de vrais mots à apprendre
+  if (t.pos === '名詞' && t.pos_detail_1 === '非自立' && FORCE_NOUNS.has(t.basic_form)) return true;
   if (t.pos === '名詞' && ['数','非自立','代名詞','接尾','特殊'].includes(t.pos_detail_1)) return false;
   if (t.pos === '名詞' && t.pos_detail_2 === '人名') return false;
   if ((t.pos === '動詞' || t.pos === '形容詞') && (t.pos_detail_1 === '非自立' || t.pos_detail_1 === '接尾')) return false;
@@ -1039,7 +1070,8 @@ function analysePages(tokenizer, pages, onProgress) {
     });
     if (onProgress && pi % 10 === 0) onProgress(pi, pages.length);
   });
-  for (const w of map.values()) w.kana = kataToHira(tokenizer.tokenize(w.jp).map(t => t.reading || t.surface_form).join(''));
+  const KANA_FIX = { '後': 'あと', '間': 'あいだ' };   // lecture la plus courante en manga
+  for (const w of map.values()) w.kana = KANA_FIX[w.jp] || kataToHira(tokenizer.tokenize(w.jp).map(t => t.reading || t.surface_form).join(''));
   return [...map.values()].sort((a, b) => b.n - a.n);
 }
 // même chose, mais rend la main au navigateur entre les pages (la page ne gèle pas, la progression s'affiche)
@@ -1538,6 +1570,29 @@ function mangaKanji(sel) {
   const outside = [...freq.keys()].filter(k => !known.has(k)).sort((a, b) => freq.get(b) - freq.get(a));
   return MK = { sig, freq, inQuiz, outside };
 }
+// ── Mots déjà « connus » de mes tomes : pour vérifier ce qu'on a coché ✓ ──
+const shortM = m => (m || '').split(/[;；]/).slice(0, 2).join(' ;').trim();
+function mangaKnownSource(c) {
+  const byJp = new Map();
+  for (const v of kanjiVols(c.vol)) for (const w of v.words) { if (w.ign) continue; if (!byJp.has(w.jp)) byJp.set(w.jp, { w, v }); }
+  const entries = [...byJp.values()], known = entries.filter(x => wordState(x.w) === 'done');
+  const weak = x => { const e = SRS[mKey(x.w)]; return !!(e && e.lvl < 4); };   // raté depuis qu'il est coché connu
+  let items = c.dir === 'type' ? known.filter(x => hasKanji(x.w.jp)) : known.filter(x => meaning(x.w));
+  if (c.filt === 'weak') items = items.filter(weak);
+  const pool = entries.filter(x => meaning(x.w));
+  const nKnown = known.length;
+  return { items, pool, name: 'Mots connus de mes mangas', keyOf: x => mKey(x.w),
+    empty: !LIB.length ? 'Importe un manga dans l\'onglet 漫画 Manga : les mots que tu marques ✓ connus apparaîtront ici pour les vérifier.'
+      : c.filt === 'weak' && nKnown ? 'Rien à consolider : tous tes mots connus sont maîtrisés 🎉' : nKnown ? `Tes ${nKnown} mots connus n'ont pas encore de ${c.dir === 'type' ? 'kanji à lire' : 'sens (importe un dictionnaire)'}.` : 'Aucun mot marqué connu pour l\'instant. Dans 漫画 Manga, coche ✓ les mots que tu connais : tu pourras les vérifier ici.',
+    make: x => {
+      const w = x.w, v = x.v, m = shortM(meaning(w)), ex = w.ex && w.ex[0];
+      const ctx = ex && c.dir !== 'toJp' ? { context: hlExample(ex), visual: ex.b >= 0 && hasImages(v) ? el => fillCrop(el, v, ex, 150) : null } : {};
+      const after = `${w.jp}${hasKanji(w.jp) ? ' (' + w.kana + ')' : ''} — ${m}`;
+      if (c.dir === 'toJp') return { key: mKey(w), prompt: m, pClass: 'fr', label: 'Quel mot ?', options: optionsFrom(x, pool, y => y.w.jp), optClass: 'jp', after, speakText: w.jp };
+      if (c.dir === 'type') return Object.assign({ key: mKey(w), prompt: w.jp, pClass: w.jp.length > 4 ? 'md' : 'lg', label: 'Tape la lecture (romaji ou kana)', accept: new Set([normKana(w.kana)]), answerText: `${w.kana} · ${romajiOf(w.kana)}${m ? ' — ' + m : ''}`, speakText: w.jp }, ctx);
+      return Object.assign({ key: mKey(w), prompt: w.jp, pClass: w.jp.length > 4 ? 'md' : 'lg', label: 'Que veut dire ce mot ?', options: optionsFrom(x, pool, y => shortM(meaning(y.w))), optClass: 'long', after, speakText: w.jp, reveal: { main: m, sub: w.kana } }, ctx);
+    } };
+}
 function mangaExamples(ch, sel) {
   const seen = new Map();
   for (const v of kanjiVols(sel)) for (const w of v.words) if (w.jp.includes(ch) && !w.ign) { const o = seen.get(w.jp); if (o) o.n += w.n; else seen.set(w.jp, { w, n: w.n }); }
@@ -1759,6 +1814,7 @@ function renderLibrary() {
     <div id="pasteBox" class="hidden"><textarea class="paste" id="pasteIn" placeholder="Colle du texte japonais ici (une page, des sous-titres, un chapitre)"></textarea>
       <input class="type-input" id="pasteTitle" placeholder="Titre (facultatif)" style="width:100%;font-size:.8rem;margin-bottom:.5rem"><button class="btn full" id="pasteGo">Analyser le texte</button></div>
     <div class="status" id="mStatus"></div>
+    ${LIB.some(v => (v.ana || 1) < ANA) ? `<div class="prepbar">🔄 Nouvelle liste de mots : <b class="jp">今 前 上 中 時 方</b> ajoutés (vrai vocabulaire). <button class="small-btn ok" id="reana">Mettre à jour mes tomes</button></div>` : ''}
     <div class="sec-title lib-title"><span>Ma bibliothèque</span>${LIB.some(hasImages) ? '<button class="small-btn" id="libBg">🎨 Fond</button>' : ''}</div>
     <div id="libList"></div>
     <div class="sec-title">Dictionnaire (pour le sens des mots)</div>
@@ -1799,6 +1855,7 @@ function renderLibrary() {
     } catch (err) { setStatus('Import impossible : ' + (err.message || err), true); }
   };
   if ($('libBg')) $('libBg').onclick = openLibBgPicker;
+  if ($('reana')) $('reana').onclick = () => { $('reana').disabled = true; reanalyzeAll(); };
   list.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { M = Object.assign(M, { vol: +b.dataset.open, view: 'words', filter: 'learn', shown: 50, upTo: 0, open: -1 }); renderManga(); });
   list.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
     const v = LIB.find(x => x.id === +b.dataset.del);
@@ -1838,6 +1895,23 @@ async function handleFiles(fileList, intoVol) {
   } catch (e) { setStatus('Import impossible : ' + (e.message || e), true); }
 }
 
+// Version de l'analyse des mots : si elle change, les tomes déjà importés peuvent être réanalysés (progression gardée)
+const ANA = 2;   // 2 : 今, 前, 上, 中, 時, 方 ajoutés à la liste
+async function reanalyzeVolume(v, tk, onStep) {
+  const pages = v.pages.map(p => ({ blocks: p.blocks.map(b => ({ text: blockText(b) })) }));
+  const ws = await analysePagesAsync(tk, pages, onStep);
+  pages.forEach((p, pi) => p.blocks.forEach((b, bi) => { if (v.pages[pi].blocks[bi]) v.pages[pi].blocks[bi].t = b.t; }));
+  const old = new Map(v.words.map(w => [w.jp, w]));
+  v.words = ws.map(w => { const o = old.get(w.jp) || {}, x = { jp: w.jp, kana: w.kana, n: w.n, f: w.f, ex: w.ex, fr: o.fr || '' }; if (o.ign) x.ign = true; if (o.d) x.d = o.d; return x; });
+  v.ana = ANA; MK = null;
+  if (DICTS.length) await fillMeanings(v); await saveVol(v);
+}
+async function reanalyzeAll() {
+  const olds = LIB.filter(v => (v.ana || 1) < ANA); if (!olds.length) return;
+  let tk; try { tk = await getTokenizer(m => setStatus(m)); } catch (e) { return setStatus('Le dictionnaire japonais n\'a pas pu se télécharger. Réessaie plus tard.', true); }
+  for (const [i, v] of olds.entries()) await reanalyzeVolume(v, tk, (p, n) => setStatus(`Mise à jour ${i + 1}/${olds.length} « ${v.title} » : page ${p} / ${n}…`));
+  renderManga(); setStatus(`✓ ${olds.length} tome${olds.length > 1 ? 's' : ''} mis à jour. Ta progression est intacte.`);
+}
 async function createVolume(pages, title, imgs) {
   if (!pages.some(p => p.blocks.length)) return setStatus('Aucun texte japonais trouvé.', true);
   setStatus('Chargement du dictionnaire japonais…');
@@ -1847,7 +1921,7 @@ async function createVolume(pages, title, imgs) {
   const words = (await analysePagesAsync(tk, pages, (i, n) => setStatus(`Analyse du texte : page ${i} / ${n}…`))).map(w => ({ jp: w.jp, kana: w.kana, n: w.n, f: w.f, ex: w.ex, fr: '' }));
   const prev = new Map(); LIB.forEach(v => v.words.forEach(w => { if (w.fr) prev.set(w.jp, w.fr); if (w.ign) prev.set('!' + w.jp, 1); }));
   words.forEach(w => { if (prev.has(w.jp)) w.fr = prev.get(w.jp); if (prev.has('!' + w.jp)) w.ign = true; });
-  const v = { id: Date.now(), title, date: Date.now(), hasImg: 0, last: 0, pages, words };
+  const v = { id: Date.now(), title, date: Date.now(), hasImg: 0, last: 0, pages, words, ana: ANA };
   LIB.unshift(v); await saveVol(v);
   if (DICTS.length) { setStatus('Ajout des sens depuis le dictionnaire…'); await fillMeanings(v); }
   if (imgs && imgs.length) { setStatus('Préparation des images…'); await attachImages(v, imgs); }
@@ -2306,7 +2380,7 @@ function mergeSRSInto(remote) {
   }
   return changed;
 }
-const volSig = v => hashStr(JSON.stringify([v.title, v.words.map(w => [w.fr || '', w.ign ? 1 : 0]), v.last || 0, v.bg || null, v.cloud || null]));
+const volSig = v => hashStr(JSON.stringify([v.ana || 1, v.title, v.words.map(w => [w.fr || '', w.ign ? 1 : 0]), v.last || 0, v.bg || null, v.cloud || null]));
 function volForCloud(v) { const c = Object.assign({}, v); delete c.hasImg; c.words = v.words.map(w => { const x = Object.assign({}, w); delete x.d; return x; }); return c; }
 function mergeVolInto(l, r) {
   let changed = false; const rw = new Map(r.words.map(w => [w.jp, w]));
@@ -2314,6 +2388,12 @@ function mergeVolInto(l, r) {
     const x = rw.get(w.jp); if (!x) continue;
     if (!w.fr && x.fr) { w.fr = x.fr; changed = true; }
     if (x.ign && !w.ign) { w.ign = true; changed = true; }
+  }
+  if ((r.ana || 1) > (l.ana || 1)) {
+    const old = new Map(l.words.map(w => [w.jp, w]));
+    l.words = r.words.map(w => { const o = old.get(w.jp), x = Object.assign({}, w); if (o) { if (o.d) x.d = o.d; if (o.fr && !x.fr) x.fr = o.fr; if (o.ign) x.ign = true; } return x; });
+    r.pages.forEach((p, i) => { if (l.pages[i]) l.pages[i].blocks.forEach((b, j) => { if (p.blocks[j] && p.blocks[j].t) b.t = p.blocks[j].t; }); });
+    l.ana = r.ana; l._meanings = true; MK = null; changed = true;
   }
   if ((r.last || 0) > (l.last || 0)) { l.last = r.last; changed = true; }
   if (r.title && r.title !== l.title && (r.titleT || 0) > (l.titleT || 0)) { l.title = r.title; l.titleT = r.titleT; changed = true; }
@@ -2382,7 +2462,7 @@ async function syncOnce() {
     if (v && meta.sig === volSig(v)) continue;
     const rv = await readRemote(`nihongo/vols/${id}.json`); if (!rv) continue;
     if (!v) { rv.hasImg = 0; LIB.push(rv); received.push(rv); setSyncState('busy', `Reçu : ${rv.title}`); }
-    else if (mergeVolInto(v, rv)) await IDB.put('vols', v);
+    else if (mergeVolInto(v, rv)) { const nm = v._meanings; delete v._meanings; if (nm && DICTS.length) await fillMeanings(v); await IDB.put('vols', v); }
   }
   for (const v of received) { if (DICTS.length) await fillMeanings(v); else await IDB.put('vols', v); }
   for (const v of LIB) {
@@ -2524,7 +2604,7 @@ function openProgress() {
   for (const k in SRS) { const m = mastery(k); if (m >= 0) tot[m]++; if (isDue(k)) due++; }
   let h = `<div class="stats"><div class="stat"><b class="c-green">${tot[3]}</b><span>Maîtrisés</span></div><div class="stat"><b style="color:var(--cyan)">${tot[2] + tot[1]}</b><span>En cours</span></div>
     <div class="stat"><b class="c-red">${tot[0]}</b><span>À revoir</span></div><div class="stat"><b class="c-gold">${due}</b><span>À réviser maintenant</span></div></div>
-    ${(() => { const d = dailyKeys(), n = d.due.length + d.fresh.length; return n ? `<button class="btn full" id="pDaily" style="margin:.2rem 0 .8rem">▶ Révision du jour (${n})</button>` : ''; })()}
+    ${(() => { const d = dailyKeys(), n = d.due.length + d.fresh.length + d.lesson.length; return n ? `<button class="btn full" id="pDaily" style="margin:.2rem 0 .8rem">▶ Révision du jour (${n})</button>` : ''; })()}
     ${evolutionHTML()}
     <div class="legend"><span><i style="background:var(--surface);border:1px solid var(--border)"></i>Jamais vu</span><span><i style="background:var(--red)"></i>À revoir</span><span><i style="background:var(--gold)"></i>En cours</span><span><i style="background:var(--cyan)"></i>Bon</span><span><i style="background:var(--green)"></i>Maîtrisé</span></div>`;
   if (LIB.length) {
