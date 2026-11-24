@@ -321,6 +321,14 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .gr-help{font-family:var(--sans);font-size:.82rem;line-height:1.45;text-align:center;margin-top:.2rem}
 .gr-fr{color:var(--text)}.gr-ro{color:var(--muted);font-family:var(--mono);font-size:.72rem;margin:.15rem 0}.gr-lex{color:var(--muted);font-size:.74rem}
 .gram-cov{margin-top:.55rem;font-size:.8rem}.gram-cov .small-btn{margin-left:.3rem;padding:.1rem .45rem;font-size:.68rem}.minibar.gram div{background:var(--gold)}
+.wp-kanji{display:flex;flex-wrap:wrap;gap:.25rem .7rem;font-size:.74rem;color:var(--muted);margin:.1rem 0 .3rem}.wp-kanji b{color:var(--text);font-weight:500;font-size:.9rem;margin-right:.15rem}
+.read-row{display:flex;justify-content:space-between;gap:.6rem;margin-top:.35rem;font-size:.8rem}.read-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.read-trend{margin-top:.5rem;font-family:var(--mono);color:var(--green);font-size:.8rem}
+.gloss{margin:.6rem 0 .3rem;font-family:var(--sans);text-align:left}.gloss summary{cursor:pointer;font-size:.82rem;color:var(--accent)}.gloss summary small{color:var(--muted);font-size:.68rem}
+.gloss-row{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.45rem}
+.gl{display:flex;flex-direction:column;align-items:center;border:1px solid var(--border);border-radius:6px;padding:.15rem .35rem;background:var(--card);min-width:2rem;max-width:9rem}
+.gl b{font-weight:500;font-size:.98rem;color:var(--text)}.gl small{font-size:.64rem;color:var(--muted);text-align:center;line-height:1.2}
+.gl.gram{border-color:var(--gold)}.gl.gram small{color:var(--gold);font-style:italic}.gl.part small{color:var(--cyan)}
+.gloss-note{font-size:.66rem;color:var(--muted);margin-top:.35rem}
 .gp-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:.45rem;font-family:var(--sans)}
 .gp-card summary{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.55rem .7rem;cursor:pointer;list-style:none}.gp-card summary::-webkit-details-marker{display:none}
 .gp-jp{font-size:1rem;color:var(--accent)}.gp-fr{flex:1;min-width:8rem;font-size:.85rem}.gp-n{font-family:var(--mono);color:var(--gold);font-size:.8rem}
@@ -553,21 +561,28 @@ function mastery(k) { const e = SRS[k]; if (!e || e.del || (e.c + e.w === 0 && !
 const FRESH_MAX = 15;
 // Une nouvelle leçon de grammaire par jour, dans la révision du jour
 const lessonKeys = li => DATA.grammar[li].questions.map((_, qi) => `g:${li}:${qi}`);
-function lessonOfDay() {
+function lessonOfDay() {   // { li } : leçon N5 · { gp } : forme de grammaire de tes mangas (la plus fréquente pas encore vue)
   const today = dayKey(); let st = load('nihongo_lesson', null);
-  if (!st || st.day !== today || !DATA.grammar[st.li]) {
+  const valid = st && st.day === today && (st.li != null ? !!DATA.grammar[st.li] : !!(st.gp && typeof GPI !== 'undefined' && GPI[st.gp]));
+  if (!valid) {
     const li = DATA.grammar.findIndex((_, i) => !lessonKeys(i).some(k => SRS[k]));
-    if (li < 0) return null;
-    st = { day: today, li }; store('nihongo_lesson', st);
+    if (li >= 0) st = { day: today, li };
+    else {
+      const next = typeof mangaGrammar === 'function' ? mangaGrammar('all').find(a => a.ex.length && !SRS[gpKey(a.g.id)]) : null;
+      if (!next) return null;
+      st = { day: today, gp: next.g.id };
+    }
+    store('nihongo_lesson', st);
   }
-  return st.li;
+  return st;
 }
 function dailyKeys() {
   const due = [], fresh = [];
   for (const k in SRS) { const e = SRS[k]; if (isDue(k)) due.push(k); else if (!e.del && e.add && !e.known && e.c + e.w === 0 && /^[mb]:/.test(k)) fresh.push(k); }
   fresh.sort((a, b) => (SRS[b].t || 0) - (SRS[a].t || 0));
-  const li = lessonOfDay(), lesson = li == null ? [] : lessonKeys(li).filter(k => !SRS[k] && !due.includes(k));
-  return { due, fresh: fresh.slice(0, FRESH_MAX), lesson, li };
+  const st = lessonOfDay(), li = st && st.li != null ? st.li : null, gp = st && st.gp || null;
+  const lesson = (li != null ? lessonKeys(li) : gp ? [gpKey(gp)] : []).filter(k => !SRS[k] && !due.includes(k));
+  return { due, fresh: fresh.slice(0, FRESH_MAX), lesson, li, gp };
 }
 function updateDueBadge() {
   const b = $('dueBadge'), d = $('btnDaily'); if (!b) return;
@@ -630,7 +645,7 @@ function getSource() {
     const data = c.set === 'words' ? DATA.kanjiWords : manga ? mk.inQuiz : DATA.kanji;
     let items = c.lvl === 'all' ? data : data.filter(x => x.lvl === c.lvl);
     const words = c.set === 'words';
-    const pool = manga ? DATA.kanji : data;
+    const pool = manga ? [...DATA.kanji, ...mk.inQuiz.filter(x => x.kdic)] : data;
     if (manga) {   // à réviser d'abord, puis les nouveaux du plus fréquent au plus rare
       const now = Date.now(), rank = x => { const e = SRS[x.jp]; if (!e || e.c + e.w === 0) return e && e.known ? 3 : 2; if (e.lvl < 6 && e.due <= now) return e.lvl <= 1 ? 0 : 1; return 3; };
       items = [...items].sort((a, b) => rank(a) - rank(b) || mk.freq.get(b.jp) - mk.freq.get(a.jp));
@@ -901,7 +916,7 @@ function renderControls() {
       const cur = kanjiVols(c.vol).length === 1 ? String(c.vol) : 'all', short = t => t.length > 22 ? t.slice(0, 21) + '…' : t;
       h += `<div class="row vol-chips">${chip('Tous les tomes', cur === 'all', 'kanji.vol:all')}${LIB.map(v => chip(esc(short(v.title)), cur === String(v.id), 'kanji.vol:' + v.id)).join('')}</div>`;
     }
-    if (c.set === 'manga') { const mk = mangaKanji(c.vol), one = LIB.length > 1 && kanjiVols(c.vol).length === 1; h += `<div class="tip" style="margin:.2rem 0 .5rem">${LIB.length ? `${one ? 'Ce tome contient' : 'Tes mangas contiennent'} <b>${mk.freq.size}</b> kanji différents, dont <b>${mk.inQuiz.length}</b> dans le quiz, classés du plus fréquent au plus rare.${mk.outside.length ? ` Les plus fréquents hors quiz : <span class="jp">${mk.outside.slice(0, 14).map(esc).join(' ')}</span> (tu les vois dans les mots de 漫画 Manga).` : ''}` : 'Importe un manga dans 漫画 Manga pour voir ses kanji ici.'}</div>`; }
+    if (c.set === 'manga') { const mk = mangaKanji(c.vol), one = LIB.length > 1 && kanjiVols(c.vol).length === 1; h += `<div class="tip" style="margin:.2rem 0 .5rem">${LIB.length ? `${one ? 'Ce tome contient' : 'Tes mangas contiennent'} <b>${mk.freq.size}</b> kanji différents, dont <b>${mk.inQuiz.length}</b> dans le quiz, classés du plus fréquent au plus rare.${mk.outside.length ? ` Hors quiz (pas de sens connu) : <span class="jp">${mk.outside.slice(0, 14).map(esc).join(' ')}</span>${KDIC.size ? '' : ' — importe un <b>dictionnaire de kanji</b> (KANJIDIC, dans 漫画 Manga → Dictionnaire) pour les ajouter au quiz'}.` : ''}` : 'Importe un manga dans 漫画 Manga pour voir ses kanji ici.'}</div>`; }
     const lv = c.set === 'words' ? [['all', 'Tous'], ['N5', 'N5'], ['N4', 'N4'], ['Manga', 'Manga']] : [['all', 'Tous'], ['N5', 'N5'], ['N4', 'N4'], ['+', 'Au-delà']];
     if (c.set === 'words' && c.lvl === '+') c.lvl = 'all'; if (c.set !== 'words' && c.lvl === 'Manga') c.lvl = 'all';
     h += `<div class="row">${lv.map(([k, l]) => chip(l, c.lvl === k, `kanji.lvl:${k}`, 'sub')).join('')}</div>`;
@@ -924,6 +939,7 @@ function renderControls() {
       const cur = kanjiVols(c.vol).length === 1 ? String(c.vol) : 'all', short = t => t.length > 22 ? t.slice(0, 21) + '…' : t;
       h += `<div class="row vol-chips">${chip('Tous les tomes', cur === 'all', 'phrases.vol:all')}${LIB.map(v => chip(esc(short(v.title)), cur === String(v.id), 'phrases.vol:' + v.id)).join('')}</div>`;
     }
+    if (c.set === 'mgram') h += `<div class="row">${chip('📖 Romaji et mots affichés', c.help !== 'off', 'phrases.help:on', 'sub')}${chip('Sans aide', c.help === 'off', 'phrases.help:off', 'sub')}</div>`;
     if (c.set === 'mgram') { const n = mangaGrammar(c.vol).length; h += `<div class="tip" style="margin:.2rem 0 .5rem">${n ? `<b>${n}</b> formes de grammaire repérées, de la plus fréquente à la plus rare. Le quiz te les montre dans tes vraies bulles.` : 'Aucune grammaire repérée pour l\'instant (importe un manga ou mets à jour tes tomes dans 漫画 Manga).'} <button class="small-btn" onclick="openGramList()">📗 Voir la liste et les leçons</button></div>`; }
     if (c.set === 'grammar') h += `<div class="row">${chip('🇫🇷 Traduction et mots affichés', c.help !== 'off', 'phrases.help:on', 'sub')}${chip('Sans aide', c.help === 'off', 'phrases.help:off', 'sub')}</div>`;
     if (c.set === 'bubbles') { const r = bubblesInReach('all');
@@ -1009,10 +1025,12 @@ function dailySource() {
     make: x => { const q = x.s.make(x.it); if (!q.options && !q.accept) q.flash = true; q.tag = x.tag; q.noKh = !!x.noKh; return q; } };
 }
 function renderDaily() {
-  const { due, fresh, lesson, li } = dailyKeys(), L = li != null ? DATA.grammar[li] : null;
-  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}${L ? ` · 📘 leçon ${li + 1}/${DATA.grammar.length}` : ''}</span></div></div>
+  const { due, fresh, lesson, li, gp } = dailyKeys(), L = li != null ? DATA.grammar[li] : null, G = gp ? GPI[gp] : null;
+  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}${L ? ` · 📘 leçon ${li + 1}/${DATA.grammar.length}` : G ? ' · 📗 grammaire de tes mangas' : ''}</span></div></div>
     ${L ? `<details class="lesson-day"${lesson.length ? ' open' : ''}><summary>📘 Leçon du jour : <b>${esc(L.point)}</b>${lesson.length ? '' : ' ✓'}</summary><div>${esc(L.explanation)}</div>${lesson.length ? `<small>Lis-la, puis les ${lesson.length} premières questions de la session la mettent en pratique.</small>` : '<small>Faite ! Elle revient dans tes révisions au bon moment. Nouvelle leçon demain.</small>'}</details>`
-      : `<div class="lesson-day done">📘 Toutes les leçons de grammaire N5 sont commencées. Elles reviennent dans tes révisions.</div>`}`;
+      : G ? (() => { const a = mangaGrammar('all').find(x => x.g.id === gp), bubs = a ? a.ex.slice(0, 2).map(x => { const b = x.v.pages[x.p] && x.v.pages[x.p].blocks[x.b]; return b ? `<div class="gp-bub"><span class="jp kh">${hlIn(blockText(b), x.s, x.o)}</span></div>` : ''; }).join('') : '';
+          return `<details class="lesson-day"${lesson.length ? ' open' : ''}><summary>📗 Grammaire du jour : <b class="jp">${esc(G.jp)}</b> — ${esc(G.fr)}${lesson.length ? '' : ' ✓'}</summary><div>${esc(G.expl)}</div><div class="gp-ex"><span class="jp">${esc(G.ex[0])}</span><br>${esc(G.ex[1])}</div>${bubs ? `<small>Dans tes mangas${a ? ` (vue ${a.n} fois)` : ''} :</small>${bubs}` : ''}${lesson.length ? '<small>La première question de la session la met en pratique, sur une de tes bulles.</small>' : '<small>Faite ! Nouvelle forme demain, la plus fréquente de tes mangas que tu n\'as pas encore vue.</small>'}</details>`; })()
+      : `<div class="lesson-day done">📘 Leçons N5 commencées et toute la grammaire repérée dans tes mangas vue. Importe un nouveau tome pour de nouvelles formes !</div>`}`;
   $('dQuit').onclick = () => { DAILY = false; render(); };
   startQuiz(dailySource(), { game: 'normal', total: 40 + lesson.length, keepOrder: true });
 }
@@ -1489,7 +1507,7 @@ async function initManga() {
   try {
     await IDB.open();
     LIB = (await IDB.all('vols')).sort((a, b) => b.date - a.date);
-    DICTS = await IDB.all('dicts'); sortDicts();
+    DICTS = await IDB.all('dicts'); sortDicts(); await loadKanjiDicts();
     // ancienne bibliothèque (version précédente, stockée dans localStorage)
     const old = load('nihongo_manga', null);
     if (Array.isArray(old) && old.length) {
@@ -1639,12 +1657,32 @@ function glossList(arr) {
   if (!out.length) (arr || []).forEach(g => { const t = typeof g === 'string' ? g : deep(g); if (t) out.push(t.trim()); });
   return out;
 }
+// Kanji : caractère → { on, kun, m (sens), d (dictionnaire) }, gardé en mémoire (dictionnaires de kanji Yomitan, ex. KANJIDIC)
+let KDIC = new Map();
+async function loadKanjiDicts() {
+  KDIC = new Map();
+  for (const d of DICTS) { if (d.kind !== 'kanji') continue; const raw = await IDB.get('imgs', 'kdic:' + d.id).catch(() => null); if (!raw) continue;
+    for (const [k, on, kun, m] of JSON.parse(typeof raw === 'string' ? raw : await raw.text())) if (!KDIC.has(k)) KDIC.set(k, { on, kun, m, d: d.id }); }   // DICTS est trié : le français d'abord
+  MK = null;
+}
+const kanjiReadingRomaji = e => [...e.on.split(' ').filter(Boolean).slice(0, 2).map(x => romajiOf(kataToHira(x))), ...e.kun.split(' ').filter(Boolean).slice(0, 2).map(x => { const [a, b] = x.replace(/-/g, '').split('.'); return romajiOf(a) + (b ? '(' + romajiOf(b) + ')' : ''); })].filter((x, i, l) => x && l.indexOf(x) === i).join(' / ');
 async function importDictionary(file, known) {
   const JSZip = await getJSZip(), zip = await JSZip.loadAsync(file);
   const idxF = zip.file('index.json');
   if (!idxF) throw new Error("Ce .zip n'est pas un dictionnaire Yomitan.");
   const index = JSON.parse(await idxF.async('string'));
   const banks = zip.file(/term_bank_\d+\.json$/).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  const kbanks = zip.file(/kanji_bank_\d+\.json$/);
+  if (!banks.length && kbanks.length) {   // dictionnaire de kanji
+    const id = known ? known.id : Date.now(), rows = [];
+    for (const f of kbanks) { setStatus(`Dictionnaire de kanji « ${index.title} »…`); for (const r of JSON.parse(await f.async('string'))) if (r[0] && Array.isArray(r[4]) && r[4].length) rows.push([r[0], r[1] || '', r[2] || '', r[4].slice(0, 4).join(', ').slice(0, 90)]); }
+    await IDB.put('imgs', JSON.stringify(rows), 'kdic:' + id);
+    const meta = { id, title: index.title || file.name || 'Kanji', count: rows.length, kind: 'kanji' };
+    await IDB.put('dicts', meta); DICTS.push(meta); sortDicts(); await loadKanjiDicts();
+    await IDB.put('imgs', file, 'dict:' + id).catch(() => { });
+    if (window.syncSoon) syncSoon();
+    return meta;
+  }
   if (!banks.length) throw new Error('Aucun mot dans ce dictionnaire.');
   const id = known ? known.id : Date.now(); let count = 0;
   for (let i = 0; i < banks.length; i++) {
@@ -1666,7 +1704,7 @@ async function importDictionary(file, known) {
 }
 async function deleteDictionary(id, fromSync) {
   await IDB.req('dict', 'readwrite', st => { const ix = st.index('d'); const cur = ix.openKeyCursor(IDBKeyRange.only(id)); cur.onsuccess = () => { const c = cur.result; if (c) { st.delete(c.primaryKey); c.continue(); } }; });
-  await IDB.del('dicts', id); await IDB.del('imgs', 'dict:' + id).catch(() => { }); DICTS = DICTS.filter(d => d.id !== id);
+  await IDB.del('dicts', id); await IDB.del('imgs', 'dict:' + id).catch(() => { }); await IDB.del('imgs', 'kdic:' + id).catch(() => { }); DICTS = DICTS.filter(d => d.id !== id); await loadKanjiDicts();
   if (!fromSync) { store('nihongo_deleted_dicts', [...load('nihongo_deleted_dicts', []), id]); if (window.syncSoon) syncSoon(); }
 }
 function lookupMany(words) {
@@ -1711,8 +1749,9 @@ function mangaKanji(sel) {
   const freq = new Map();
   for (const v of vols) for (const pg of v.pages) for (const b of pg.blocks) for (const t of (b.t || [])) for (const ch of t[0]) if (/[一-鿿]/.test(ch)) freq.set(ch, (freq.get(ch) || 0) + 1);
   const known = new Set(DATA.kanji.map(x => x.jp));
-  const inQuiz = DATA.kanji.filter(x => freq.has(x.jp)).sort((a, b) => freq.get(b.jp) - freq.get(a.jp));
-  const outside = [...freq.keys()].filter(k => !known.has(k)).sort((a, b) => freq.get(b) - freq.get(a));
+  const extra = [...freq.keys()].filter(k => !known.has(k) && KDIC.has(k)).map(k => { const e = KDIC.get(k); return { jp: k, reading: kanjiReadingRomaji(e), fr: e.m.split(', ').slice(0, 3).join(', '), lvl: '+', kdic: true }; }).filter(x => x.reading && x.fr);
+  const inQuiz = [...DATA.kanji.filter(x => freq.has(x.jp)), ...extra].sort((a, b) => freq.get(b.jp) - freq.get(a.jp));
+  const outside = [...freq.keys()].filter(k => !known.has(k) && !KDIC.has(k)).sort((a, b) => freq.get(b) - freq.get(a));
   return MK = { sig, freq, inQuiz, outside };
 }
 // ── Mots déjà « connus » de mes tomes : pour vérifier ce qu'on a coché ✓ ──
@@ -1757,24 +1796,90 @@ function mangaGrammar(sel) {
 }
 const gpKey = id => 'gp:' + id;
 const hlIn = (text, s, o) => { const i = !s ? -1 : o != null && text.substr(o, s.length) === s ? o : text.indexOf(s); return i < 0 ? esc(text) : esc(text.slice(0, i)) + `<span class="hl">${esc(s)}</span>` + esc(text.slice(i + s.length)); };
+// toutes les bulles où chaque forme apparaît (b.g), pour choisir la plus facile à comprendre
+function gramCandidates(sel) {
+  const m = new Map();
+  for (const v of kanjiVols(sel)) v.pages.forEach((pg, p) => pg.blocks.forEach((b, bi) => {
+    for (const [id, s, o] of (b.g || [])) { const l = m.get(id) || m.set(id, []).get(id); if (l.length < 80) l.push({ v, p, b: bi, s, o }); }
+  }));
+  return m;
+}
+// nombre de mots inconnus d'une bulle (plus c'est bas, plus elle est facile)
+let BYJP = new WeakMap();   // cache hors du tome (jamais enregistré ni synchronisé)
+function bubbleDifficulty(v, b) {
+  let byJp = BYJP.get(v); if (!byJp) BYJP.set(v, byJp = new Map(v.words.map(w => [w.jp, w]))); let unk = 0, known = 0; const seen = new Set();
+  for (const t of (b.t || [])) { const w = t[2] && byJp.get(t[2]); if (!w || w.ign || seen.has(w.jp)) continue; seen.add(w.jp); if (wordState(w) === 'done') known++; else unk++; }
+  return { unk, known };
+}
+function easiestExample(cands) {
+  const scored = cands.map(x => { const b = x.v.pages[x.p] && x.v.pages[x.p].blocks[x.b]; if (!b) return null; const d = bubbleDifficulty(x.v, b); return { x, k: d.unk * 100 - Math.min(d.known, 20) + blockText(b).length / 100 }; }).filter(Boolean);
+  if (!scored.length) return null;
+  scored.sort((a, b) => a.k - b.k);
+  const best = scored.filter(s => s.k < scored[0].k + 100).slice(0, 3);   // même nombre de mots inconnus : on varie entre les 3 meilleures
+  return best[Math.floor(Math.random() * best.length)].x;
+}
 function mgramSource(c) {
-  const list = mangaGrammar(c.vol), now = Date.now();
+  const list = mangaGrammar(c.vol), now = Date.now(), cands = gramCandidates(c.vol);
+  BYJP = new WeakMap();
   const rank = a => { const e = SRS[gpKey(a.g.id)]; if (!e || e.c + e.w === 0) return 2; if (e.lvl < 6 && e.due <= now) return e.lvl <= 1 ? 0 : 1; return 3; };
   const items = list.filter(a => a.ex.length).sort((a, b) => rank(a) - rank(b) || b.n - a.n);
   const analysed = kanjiVols(c.vol).some(v => (v.ana || 1) >= 3);
   return { items, pool: items, ordered: true, name: 'Grammaire de mes mangas', keyOf: a => gpKey(a.g.id),
     empty: !LIB.length ? 'Importe un manga dans l\'onglet 漫画 Manga : sa grammaire apparaîtra ici, de la plus fréquente à la plus rare.' : !analysed ? 'Mets à jour tes tomes (bandeau 🔄 dans 漫画 Manga) pour repérer leur grammaire.' : 'Aucune forme de grammaire repérée dans ce tome.',
     make: a => {
-      const x = a.ex[Math.floor(Math.random() * a.ex.length)], v = x.v, b = v.pages[x.p] && v.pages[x.p].blocks[x.b], text = b ? blockText(b) : a.g.ex[0];
+      const x = easiestExample(cands.get(a.g.id) || a.ex) || a.ex[0], v = x.v, b = v.pages[x.p] && v.pages[x.p].blocks[x.b], text = b ? blockText(b) : a.g.ex[0];
       const here = new Set(((b && b.g) || []).map(g => g[0])), pool = GP.filter(g => g.id === a.g.id || !here.has(g.id));   // pas de 2e bonne réponse dans la même bulle
       return { key: gpKey(a.g.id), prompt: hlIn(text, x.s, x.o), html: true, pClass: text.length > 12 ? 'sm' : 'md', label: 'Que veut dire la forme surlignée ?',
         options: optionsFrom(a.g, pool, g => g.fr), optClass: 'long', speakText: text,
-        context: `📖 ${esc(v.title)}${v.pages.length > 1 ? ' · p.' + (x.p + 1) : ''}`,
+        context: `📖 ${esc(v.title)}${v.pages.length > 1 ? ' · p.' + (x.p + 1) : ''}` + (S.phrases.help === 'off' || !b ? '' : mgramHelp(v, x.p, x.b, b, x.s, x.o)),
         visual: b && b.box && hasImages(v) ? el => fillCrop(el, v, { p: x.p, b: x.b }, 160) : null,
         after: `${a.g.jp} — ${a.g.fr}`,
-        explainHTML: `<span class="t">${esc(a.g.jp)} · ${esc(a.g.fr)}</span>${esc(a.g.expl)}<br><br><span class="jp">${esc(a.g.ex[0])}</span><br>${esc(a.g.ex[1])}<br><br><span class="muted">Vue ${a.n} fois dans ${kanjiVols(c.vol).length > 1 ? 'tes mangas' : 'ce tome'}.</span>`,
+        explainHTML: `<span class="t">${esc(a.g.jp)} · ${esc(a.g.fr)}</span>${esc(a.g.expl)}<br><br><span class="jp">${esc(a.g.ex[0])}</span><br>${esc(a.g.ex[1])}<br><br><span class="muted">Vue ${a.n} fois dans ${kanjiVols(c.vol).length > 1 ? 'tes mangas' : 'ce tome'}.</span>${glossHTML(v, b)}`,
         reveal: { main: a.g.fr, sub: a.g.jp } };
     } };
+}
+// Aide pour comprendre la bulle sans donner la réponse : ta traduction (si tu en as écrit une), le romaji, le sens des mots
+// Mot à mot d'une bulle (approximatif) : chaque mot avec son sens, chaque morceau de grammaire avec son rôle
+function glossHTML(v, b) {
+  if (!b || !b.t || !b.t.length) return '';
+  const byJp = new Map(v.words.map(w => [w.jp, w])), g = (b.g || []).filter(x => x[2] != null && GPI[x[0]] && !['fin', 'tereq', 'meirei'].includes(x[0]));
+  const cells = []; let off = 0, i = 0;
+  const short = s => (s || '').split(/[;；]/)[0].replace(/\s*\(.*?\)\s*/g, ' ').trim();
+  while (i < b.t.length) {
+    const [s, rd, base] = b.t[i];
+    // un morceau de grammaire qui commence ici (た, てしまっ, られ…) : on le garde en un seul bloc
+    const gp = !base && g.find(x => x[2] === off);
+    if (gp) {
+      let txt = '', j = i, o = off; while (j < b.t.length && o < gp[2] + gp[1].length) { txt += b.t[j][0]; o += b.t[j][0].length; j++; }
+      cells.push({ jp: txt, fr: GPI[gp[0]].fr, gram: true }); off = o; i = j; continue;
+    }
+    let fr = '', cls = '';
+    const pv = b.t[i - 1] || [], pvConj = !!(pv[2] && pv[0] !== pv[2]) || /^(っ|ん|い|き|し|み|び|ち|り|に|ぎ|え|け|せ|て|べ|め|れ|げ|ぜ|で|ね|へ|ぺ)$/.test((pv[0] || '').slice(-1)) && !!pv[2];
+    const sw = SMALLWORDS[s] || (base && SMALLWORDS[base]);
+    if (!/[぀-ヿ一-鿿]/.test(s)) fr = '';
+    else if (!base && /^(て|で)$/.test(s) && pvConj) { fr = 'forme ‑te (et… / en …ant)'; cls = 'part'; }
+    else if (!base && /^(た|だ)$/.test(s) && pvConj) { fr = 'passé'; cls = 'part'; }
+    else if (!base && /^(し|さ|せ|する|すれ|しよ|しろ)$/.test(s) && pv[2] && /[一-鿿ァ-ヿ]/.test(pv[0] || '')) fr = 'faire (する)';
+    else if (!base && /^(ます|まし|ませ|ござい)$/.test(s)) { fr = s === 'ござい' ? 'être (poli)' : 'politesse'; cls = 'part'; }
+    else if (!base && /^(ない|なかっ|なく|なきゃ|ず|ん)$/.test(s) && pvConj) { fr = 'négation'; cls = 'part'; }
+    else if (s === 'に' && !base && g.some(x => x[0] === 'passive' && x[2] > off && x[2] - off < 8)) { fr = 'par (celui qui fait l\'action)'; cls = 'part'; }
+    else if (sw && !PARTICLES[s]) fr = short(sw);
+    else if (base && byJp.has(base)) { const w = byJp.get(base); fr = (meaning(w) || '').split(/[;；]/).slice(0, 2).map(x => x.replace(/\s*\(.*?\)\s*/g, ' ').trim()).filter(Boolean).join(' / ') || '?'; }
+    else if (PARTICLES[s]) { fr = short(PARTICLES[s]); cls = 'part'; }
+    else if (base && BASIC_FR[base]) fr = BASIC_FR[base];
+    else fr = '…';
+    cells.push({ jp: s, fr, cls });
+    off += s.length; i++;
+  }
+  return `<details class="gloss"><summary>🔍 Mot à mot <small>(approximatif, pour vérifier après avoir essayé)</small></summary><div class="gloss-row">${cells.map(c => `<span class="gl${c.gram ? ' gram' : ''}${c.cls ? ' ' + c.cls : ''}"><b class="jp">${esc(c.jp)}</b><small>${esc(c.fr)}</small></span>`).join('')}</div><div class="gloss-note">Les blocs suivent l'ordre japonais : le verbe et sa grammaire arrivent à la fin. Pour comprendre, pars de la fin. <i>En jaune</i> : la grammaire.</div></details>`;
+}
+function mgramHelp(v, p, bi, b, hs, ho) {
+  const byJp = new Map(v.words.map(w => [w.jp, w])), seen = new Set(), note = (SRS[bKey(v, p, bi)] || {}).note;
+  const lex = (b.t || []).map(t => t[2]).filter(j => j && byJp.has(j) && !seen.has(j) && seen.add(j)).map(j => { const w = byJp.get(j), m = shortM(meaning(w)).split(/[;；]/)[0]; return m ? `${esc(w.jp)} ${esc(m)}` : ''; }).filter(Boolean);
+  // jamais le morceau surligné ni un petit mot de grammaire : ce serait donner la réponse
+  const hide = s => hs && (hs.includes(s) || s.includes(hs)), GRAMW = /^(ない|だ|です|ん|よう|そう|ため|こと|もの|する|いる|ある|なる|けど|けれど|でも|だって|じゃあ|じゃ|ちゃ|もう|まだ)$/;
+  const pron = (b.t || []).map(t => t[0]).filter(s => SMALLWORDS[s] && !PARTICLES[s] && !GRAMW.test(s) && !hide(s) && !seen.has(s) && seen.add(s)).map(s => `${esc(s)} ${esc(SMALLWORDS[s].split(/[(/]/)[0].trim())}`);
+  return `<div class="gr-help">${note ? `<div class="gr-fr">« ${esc(note)} » <small>(ta traduction)</small></div>` : ''}<div class="gr-ro">${esc(romajiLine(b))}</div>${lex.length || pron.length ? `<div class="gr-lex">${[...lex, ...pron].join(' · ')}</div>` : ''}</div>`;
 }
 function openGramList(focus) {
   const sel = S.phrases.vol, list = mangaGrammar(sel), shown = new Set(list.map(a => a.g.id));
@@ -1826,7 +1931,17 @@ function bubbleList() {
   }
   return out;
 }
-const romajiLine = b => (b.t || []).map(([s, rd]) => /[぀-ヿ一-鿿]/.test(s) ? romajiOf(kataToHira(rd || s)) : s).join(' ').replace(/ ([、。！？!?…])/g, '$1');
+// romaji d'une bulle : un groupe par mot (les terminaisons restent collées au verbe : 買って → katte), particules à part
+const romajiLine = b => {
+  const groups = []; let cur = null, conj = false;
+  for (const [s, rd, base] of (b.t || [])) {
+    if (!/[぀-ヿ一-鿿]/.test(s)) { groups.push({ t: s, raw: true }); cur = null; continue; }
+    const wasConj = conj; conj = !!base && s !== base;   // 急い(ぐ) + で = forme en ‑te, pas la particule で
+    const k = kataToHira(rd || s), part = !base && !(wasConj && /^(て|で)$/.test(s)) && /^(は|が|を|に|で|と|も|へ|か|ね|よ|な|ぞ|ぜ|わ|さ|の|から|まで|より|けど|けれど|って|って|ので|のに|しか|だけ|など|や)$/.test(s);
+    if (cur && !base && !part) cur.t += k; else { cur = { t: k }; groups.push(cur); if (part) cur = null; }
+  }
+  return groups.map(g => g.raw ? g.t : g.t === 'は' ? 'wa' : g.t === 'へ' ? 'e' : romajiOf(g.t)).join(' ').replace(/ ([、。！？!?…」』）])/g, '$1').replace(/([「『（]) /g, '$1');
+};
 function bubbleWordsHTML(v, b) {
   const byJp = new Map(v.words.map(w => [w.jp, w])), seen = new Set();
   return (b.t || []).map(t => t[2]).filter(x => x && byJp.has(x) && !seen.has(x) && seen.add(x)).map(jp => { const w = byJp.get(jp);
@@ -1845,7 +1960,7 @@ function bubbleSource() {
         visual: it.b.box && hasImages(it.v) ? el => fillCrop(el, it.v, { p: it.p, b: it.bi }, 170) : null,
         reveal: { html: true, main: `<div class="bub-furi">${tokensHTML(it.v, it.b, 'kana')}</div>`, sub: romajiLine(it.b), fr: e.note || '' },
         resultText: e.note || romajiLine(it.b),
-        explainHTML: `${words ? `<span class="t">Mots</span>${words}` : ''}<div id="qGram"></div>
+        explainHTML: `${words ? `<span class="t">Mots</span>${words}` : ''}${glossHTML(it.v, it.b)}<div id="qGram"></div>
           <div class="note-row"><input class="word-fr" id="bNote" placeholder="ma traduction (facultatif)" value="${esc(e.note || '')}"><button class="small-btn" id="bDel" title="Retirer cette bulle">🗑</button></div>`,
         afterReveal: () => {
           fillGram($('qGram'), it.v, text);
@@ -2026,9 +2141,9 @@ function renderLibrary() {
     <div class="sec-title lib-title"><span>Ma bibliothèque</span>${LIB.some(hasImages) ? '<button class="small-btn" id="libBg">🎨 Fond</button>' : ''}</div>
     <div id="libList"></div>
     <div class="sec-title">Dictionnaire (pour le sens des mots)</div>
-    <div class="tip">${DICTS.length ? DICTS.map(d => `<div class="dict-row"><span>📚 ${esc(d.title)} · ${d.count.toLocaleString('fr-FR')} entrées</span><button class="small-btn ko" data-ddel="${d.id}">Retirer</button></div>`).join('') :
+    <div class="tip">${DICTS.length ? DICTS.map(d => `<div class="dict-row"><span>${d.kind === 'kanji' ? '漢' : '📚'} ${esc(d.title)} · ${d.count.toLocaleString('fr-FR')} ${d.kind === 'kanji' ? 'kanji' : 'entrées'}</span><button class="small-btn ko" data-ddel="${d.id}">Retirer</button></div>`).join('') :
       'Aucun dictionnaire. Sans lui, le quiz donne la lecture des mots mais pas leur sens.'}
-      <div style="margin-top:.5rem">Télécharge <a href="${dl}JMdict_french.zip">JMdict français</a> (petit, les mots courants) et/ou <a href="${dl}JMdict_english.zip">JMdict anglais</a> (complet, plus lourd), puis importe le .zip sans le décompresser.</div></div>
+      <div style="margin-top:.5rem">Pour les mots : <a href="${dl}JMdict_french.zip">JMdict français</a> (petit, les mots courants) et/ou <a href="${dl}JMdict_english.zip">JMdict anglais</a> (complet, plus lourd).<br>Pour les kanji : <a href="${dl}KANJIDIC_french.zip">KANJIDIC français</a> (2 000 kanji courants) et/ou <a href="${dl}KANJIDIC_english.zip">KANJIDIC anglais</a> (10 000 kanji). Importe chaque .zip sans le décompresser.</div></div>
     <button class="btn ghost sm full" id="dictBtn">📚 Importer un dictionnaire (.zip Yomitan)</button>
     <input type="file" id="dictIn" accept=".zip" hidden>`;
   const list = $('libList');
@@ -2147,6 +2262,7 @@ function renderVolume(v) {
     <div class="vol-head" id="volHead"><button class="small-btn" id="back">←</button><h2 id="volTitle" title="Renommer">${esc(v.title)}</h2><button class="small-btn" id="volRename" title="Renommer ce tome">✏️</button></div>
     <div class="coverage"><div class="cov-top"><b>${s.cov} %</b> des mots de ce tome connus${s.to90 ? ` · encore <b>${s.to90}</b> mots pour 90 %` : ' · objectif 90 % atteint 🎉'}</div>
       <div class="minibar"><div style="width:${s.cov}%"></div></div>
+      ${(() => { const r = readStats(v.id); return r.pages ? `<div class="cov-top gram-cov">📖 Lecture : <b>${r.pages} / ${v.pages.length}</b> pages lues · <b>${fmt1(r.mpp)}</b> mot${r.mpp >= 2 ? 's' : ''} touché${r.mpp >= 2 ? 's' : ''} par page</div>` : ''; })()}
       ${(() => { const gs = Object.keys(v.gram || {}).filter(id => GPI[id]); if (!gs.length) return ''; const ok = gs.filter(id => mastery(gpKey(id)) === 3).length, seen = gs.filter(id => mastery(gpKey(id)) >= 0).length, pc = Math.round(ok / gs.length * 100);
         return `<div class="cov-top gram-cov">📗 Grammaire du tome : <b>${ok} / ${gs.length}</b> formes maîtrisées${seen > ok ? ` · ${seen - ok} en cours` : ''} <button class="small-btn" id="volGram">voir</button></div><div class="minibar gram"><div style="width:${pc}%"></div></div>`; })()}</div>
     <div class="row">${chip('📋 Mots', M.view === 'words', 'm:words')}${chip('🃏 Réviser', M.view === 'review', 'm:review')}${chip('📖 Lire', M.view === 'read', 'm:read')}</div>
@@ -2308,6 +2424,7 @@ function renderPage(v) {
     return `<div class="bub${b.v ? ' vert' : ''}" data-b="${bi}" style="left:${x1 / pg.w * 100}%;top:${y1 / pg.h * 100}%;width:${(x2 - x1) / pg.w * 100}%;height:${(y2 - y1) / pg.h * 100}%;font-size:max(9px,${fs}cqw)">${esc(blockText(b))}</div>`;
   }).join('') : '';
   if (M.lp !== v.id + ':' + p) { M.lp = v.id + ':' + p; M.looked = new Set(); }
+  readMark(v.id, p);
   $('mBody').innerHTML = `
     <div class="reader-nav"><button class="btn ghost" id="pPrev" ${p === 0 ? 'disabled' : ''}>‹</button><button class="pjump" id="pJump" title="Aller à une page">page <b>${p + 1}</b> / ${n} ▾</button><button class="btn ghost" id="pNext" ${p >= n - 1 ? 'disabled' : ''}>›</button></div>
     <div class="pjump-row hidden" id="pJumpRow"><input type="range" id="pRange" min="1" max="${n}" value="${p + 1}"><input type="number" class="type-input" id="pNum" min="1" max="${n}" value="${p + 1}" inputmode="numeric"><button class="small-btn ok" id="pGo">Aller</button></div>
@@ -2381,6 +2498,7 @@ function openSheet(v, p, bi) {
       <div class="sh-tools"><button class="small-btn" id="shAnnot">${{ kana: 'あ Furigana', romaji: 'a Romaji', none: '— Rien' }[S.annot || 'kana']}</button><button class="small-btn" id="shSpeak">🔊 Écouter</button><button class="small-btn" id="shCopy">📋 Copier</button>
         <button class="small-btn${bubbleSaved(bKey(v, p, bi)) ? ' ok' : ''}" id="shSave">${bubbleSaved(bKey(v, p, bi)) ? '💬 En révision ✓' : '💬 Réviser cette bulle'}</button></div>
       <div class="hint" style="text-align:left">Touche un kana pour voir sa lecture.</div>
+      ${glossHTML(v, b)}
       <div id="shGram"></div>${b.g && b.g.length ? `<div class="gp-sheet"><div class="gram-t">📗 Grammaire de la bulle</div>${gpChips(b.g)}</div>` : ''}
       ${ids.length ? ids.map(jp => { const i = words.get(jp), w = v.words[i], st = wordState(w);
         return `<div class="sh-word"><div class="sh-top"><span class="dot ${st}"></span><b class="wjp kh">${esc(w.jp)}</b>${hasKanji(w.jp) ? `<span class="wkana">${esc(w.kana)}</span>` : ''}<span class="wn">×${w.n}</span></div>
@@ -2406,6 +2524,28 @@ function hideSheet() { const s = $('sheet'); if (s) s.classList.remove('show'); 
 function closeSheet() { hideSheet(); if (M.sheetDirty) { M.sheetDirty = false; const v = LIB.find(x => x.id === M.vol); if (v && S.tab === 'manga') { const y = scrollY; renderVolume(v); scrollTo(0, y); } } }
 function hidePop() { hideSheet(); hideWordPop(); }
 function exitFull() { if (typeof M !== 'undefined') M.full = false; document.body.classList.remove('rfull', 'rfull-ui'); const h = $('rfullHost'); if (h) h.innerHTML = ''; }
+
+// ── Mesure de la lecture : pages lues et mots touchés, par tome et par appareil (synchronisé) ──
+let RSTATS = load('nihongo_reading', {});   // { volId: { appareil: { pg: [pages lues], lk: mots touchés } } }
+const rdev = () => (typeof SYNC !== 'undefined' && SYNC.device) || 'ici';
+function readEntry(id) { const v = RSTATS[id] || (RSTATS[id] = {}); return v[rdev()] || (v[rdev()] = { pg: [], lk: 0 }); }
+function readMark(id, p) { const e = readEntry(id); if (!e.pg.includes(p)) { e.pg.push(p); store('nihongo_reading', RSTATS); if (window.syncSoon) syncSoon(); } }
+function readLook(id) { readEntry(id).lk++; store('nihongo_reading', RSTATS); }
+function readStats(id) {
+  const all = Object.values(RSTATS[id] || {}), pages = new Set(), lk = all.reduce((a, e) => a + (e.lk || 0), 0);
+  all.forEach(e => (e.pg || []).forEach(p => pages.add(p)));
+  return { pages: pages.size, lk, mpp: pages.size ? lk / pages.size : 0 };
+}
+function mergeReading(r) {
+  let ch = false;
+  for (const id in r || {}) for (const dev in r[id] || {}) {
+    const x = r[id][dev], l = (RSTATS[id] || (RSTATS[id] = {}))[dev] || (RSTATS[id][dev] = { pg: [], lk: 0 });
+    for (const p of x.pg || []) if (!l.pg.includes(p)) { l.pg.push(p); ch = true; }
+    if ((x.lk || 0) > l.lk) { l.lk = x.lk; ch = true; }
+  }
+  if (ch) store('nihongo_reading', RSTATS); return ch;
+}
+const fmt1 = n => n.toFixed(1).replace('.', ',');
 
 // ── Mots touchés directement dans les bulles de la page ──
 const PARTICLES = { 'は': 'thème (« quant à… »)', 'が': 'sujet / « mais »', 'を': 'complément d\'objet', 'に': 'à, vers, dans (but, moment, lieu)', 'で': 'lieu de l\'action / moyen (« avec »)', 'と': 'et / avec / citation', 'の': 'de (possession) / transforme en nom', 'も': 'aussi / même', 'へ': 'vers', 'から': 'depuis / parce que', 'まで': 'jusqu\'à', 'より': 'que (comparaison) / depuis', 'か': 'question / ou', 'ね': 'n\'est-ce pas ? (connivence)', 'よ': 'je te le dis (affirmation)', 'な': 'exclamation / « ne… pas ! » (après un verbe)', 'ぞ': 'affirmation forte (masculin)', 'ぜ': 'allez ! (masculin, familier)', 'わ': 'affirmation douce', 'さ': 'tu vois / eh bien', 'って': 'citation (« il paraît », « ce qu\'on appelle »)', 'けど': 'mais / bien que', 'けれど': 'mais / bien que', 'のに': 'alors que (regret, reproche)', 'ので': 'parce que', 'し': 'et en plus', 'ば': 'si (condition)', 'でも': 'même / mais', 'しか': 'seulement (avec une négation)', 'だけ': 'seulement', 'ばかり': 'rien que / venir de', 'など': 'etc.', 'や': 'et (liste incomplète)', 'ぐらい': 'environ', 'くらい': 'environ', 'ほど': 'au point de / environ', 'かな': 'je me demande…', 'かしら': 'je me demande… (féminin)', 'だ': 'être (copule)', 'です': 'être (poli)', 'じゃ': 'eh bien / = では', 'ちゃ': '= ては' };
@@ -2445,7 +2585,7 @@ function wordPop(v, p, bi, ti, anchor) {
   const b = v.pages[p].blocks[bi], t = b.t[ti]; if (!t) return;
   const w = t[2] ? v.words.find(x => x.jp === t[2]) : null;
   document.querySelectorAll('.tk.sel').forEach(x => x.classList.remove('sel')); anchor.classList.add('sel');
-  if (w) { M.looked = M.looked || new Set(); M.looked.add(w.jp); }
+  if (w) { M.looked = M.looked || new Set(); if (!M.looked.has(w.jp)) readLook(v.id); M.looked.add(w.jp); }
   let added = false;
   if (w && S.autoAdd !== false && wordState(w) === 'new') { const k = mKey(w), e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 }); e.add = true; e.due = 0; e.t = Date.now(); saveSRS(); added = true; }
   const text = blockText(b), off = b.t.slice(0, ti).reduce((a, x) => a + x[0].length, 0);
@@ -2466,6 +2606,7 @@ function wordPop(v, p, bi, ti, anchor) {
       ${w && t[0] !== w.jp ? `<div class="wp-form">dans la bulle : <span class="jp">${esc(t[0])}</span></div>` : ''}
       <div class="wp-fr">${m ? esc(m.split(/[;；]/).slice(0, 3).join(' ;')) : w ? `<span class="muted">${looking ? 'recherche…' : DICTS.length ? 'pas trouvé dans ton dictionnaire (le dictionnaire anglais est plus complet)' : 'pas de sens (importe un dictionnaire)'}</span>` : `<span class="muted">${looking ? 'recherche…' : 'petit mot de grammaire : il se comprend avec le reste de la phrase (touche les mots voisins ou « Toute la bulle »)'}</span>`}</div>
       ${!w && m ? '<div class="wp-form">mot courant, hors de ta liste à apprendre</div>' : ''}
+      ${KDIC.size ? (() => { const ks = [...new Set((w ? w.jp : t[0]).split(''))].filter(ch => /[一-鿿]/.test(ch) && (KDIC.has(ch) || DATA.kanji.some(x => x.jp === ch))); return ks.length ? `<div class="wp-kanji">${ks.map(ch => { const k = DATA.kanji.find(x => x.jp === ch), e = KDIC.get(ch); return `<span><b class="jp">${esc(ch)}</b> ${esc(k ? k.fr : e.m.split(', ').slice(0, 2).join(', '))}</span>`; }).join('')}</div>` : ''; })() : ''}
       <div id="wpGram"></div>
       <div class="wp-btns">${w ? (st === 'done' ? `<span class="state done">connu</span><button class="small-btn" data-wp="unk">↺ À revoir</button>`
         : st === 'learn' ? `<span class="state learn">${added ? '＋ ajouté à tes révisions' : 'en révision'}</span><button class="small-btn ok" data-wp="kn">✓ Je le connais</button>`
@@ -2660,8 +2801,9 @@ async function syncOnce() {
   const before = JSON.stringify(SRS);
   if (rp && rp.srs) mergeSRSInto(rp.srs);
   if (rp && rp.hist) mergeHist(rp.hist);
+  if (rp && rp.reading) mergeReading(rp.reading);
   if (JSON.stringify(SRS) !== before) { store('nihongo_srs', SRS); histSnap(); }
-  if (!rp || JSON.stringify(rp.srs) !== JSON.stringify(SRS) || JSON.stringify(rp.hist || {}) !== JSON.stringify(HIST)) writes.push({ path: 'nihongo/progress.json', blob: jsonBlob({ srs: SRS, hist: HIST, by: SYNC.device, at: Date.now() }) });
+  if (!rp || JSON.stringify(rp.srs) !== JSON.stringify(SRS) || JSON.stringify(rp.hist || {}) !== JSON.stringify(HIST) || JSON.stringify(rp.reading || {}) !== JSON.stringify(RSTATS)) writes.push({ path: 'nihongo/progress.json', blob: jsonBlob({ srs: SRS, hist: HIST, reading: RSTATS, by: SYNC.device, at: Date.now() }) });
   // 2. bibliothèque
   const lib = (await readRemote('nihongo/library.json')) || { vols: [], deleted: [], dicts: [], deletedDicts: [] };
   const deleted = new Set([...(lib.deleted || []), ...load('nihongo_deleted', [])]);
@@ -2825,6 +2967,8 @@ function openProgress() {
   if (LIB.length) {
     h += `<div class="sec-title">漫画 Mes mangas</div>`;
     LIB.forEach(v => { const s = volStats(v); h += `<div class="vol"><div class="vol-info"><div class="vol-title">${esc(v.title)}</div><div class="vol-stats">${s.cov} % des mots du tome connus · ${s.to90 ? `encore <b>${s.to90}</b> mots pour lire à 90 %` : 'prêt à lire 🎉'} · ${s.learn} en révision${(() => { const gs = Object.keys(v.gram || {}).filter(id => GPI[id]); return gs.length ? ` · 📗 grammaire ${gs.filter(id => mastery(gpKey(id)) === 3).length}/${gs.length}` : ''; })()}</div><div class="minibar"><div style="width:${s.cov}%"></div></div></div></div>`; });
+    const rd = LIB.map(v => ({ v, r: readStats(v.id) })).filter(x => x.r.pages >= 3).sort((a, b) => a.v.date - b.v.date);
+    if (rd.length) h += `<div class="sec-title">📖 Ta lecture</div><div class="tip">Mots touchés par page : plus c'est bas, plus tu lis sans aide.${rd.map(x => `<div class="read-row"><span>${esc(x.v.title)}</span><span>${x.r.pages} p. · <b>${fmt1(x.r.mpp)}</b> / page</span></div>`).join('')}${rd.length > 1 ? `<div class="read-trend">${rd.map(x => fmt1(x.r.mpp)).join(' → ')}</div>` : ''}</div>`;
     const nb = bubbleList().length; if (nb) h += `<div class="tip">💬 ${nb} bulle${nb > 1 ? 's' : ''} en révision (onglet 文 Phrases → 💬 Mes bulles).</div>`;
   }
   for (const [name, data, keyFn, disp, wide] of sets) {
