@@ -871,10 +871,17 @@ function showResult() {
   stopTimer();
   const done = Q.correct + Q.wrong, pct = done ? Math.round(Q.correct / done * 100) : 0;
   const [emoji, title] = pct === 100 ? ['🏆', 'PARFAIT !'] : pct >= 80 ? ['🎌', 'EXCELLENT !'] : pct >= 60 ? ['✨', 'BIEN JOUÉ !'] : pct >= 40 ? ['📚', 'CONTINUE !'] : ['🔄', 'À RETRAVAILLER'];
-  const errs = Q.mistakes.map(it0 => { const q = Q.source.make(it0), it = it0 && it0.s && it0.it ? it0.it : it0;   // révision du jour : élément d'origine
-    const main = q.pClass === 'fr' ? (q.options.find(o => o.ok)?.t || '') : (q.html ? it.answer : q.prompt);
-    const r = q.resultText || (q.reveal ? [q.reveal.main, q.reveal.sub].filter(Boolean).join(' · ') : (q.answerText || q.after || q.prompt));
-    return `<div class="err-item"><div class="k">${esc(main)}</div><div><div>${esc(q.html ? it.sentence.replace('___', it.answer) : r)}</div></div></div>`; }).join('');
+  const plain = s => String(s ?? '').replace(/<[^>]*>/g, '');
+  const errs = Q.mistakes.map(it0 => { try {   // une erreur d'affichage ne doit jamais bloquer l'écran de résultat
+    const q = Q.source.make(it0), it = it0 && it0.s && it0.it ? it0.it : it0;   // révision du jour : élément d'origine
+    let main, r;
+    if (q.html && it && it.sentence) { main = it.answer; r = it.sentence.replace('___', it.answer); }   // grammaire N5
+    else {
+      main = q.pClass === 'fr' ? ((q.options || []).find(o => o.ok)?.t || '') : plain(q.prompt);
+      r = q.resultText || (q.reveal ? [q.reveal.main, q.reveal.sub].filter(Boolean).map(plain).join(' · ') : (q.answerText || q.after || plain(q.prompt)));
+    }
+    return `<div class="err-item"><div class="k">${esc(main)}</div><div><div>${esc(r)}</div></div></div>`;
+  } catch (e) { console.warn('résultat', e); return ''; } }).join('');
   $('card').innerHTML = `<div class="result"><div class="emoji">${emoji}</div><h2>${title}</h2>
     <div class="sub">${esc(Q.source.name)}<br>Score <b>${Q.correct}/${done}</b> (${pct}%) · Meilleure série <b>${Q.best}</b></div>
     ${errs ? `<div class="sec-title">À revoir</div><div class="err-list">${errs}</div>` : ''}
