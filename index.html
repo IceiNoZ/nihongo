@@ -323,6 +323,7 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .gram-cov{margin-top:.55rem;font-size:.8rem}.gram-cov .small-btn{margin-left:.3rem;padding:.1rem .45rem;font-size:.68rem}.minibar.gram div{background:var(--gold)}
 .wp-kanji{display:flex;flex-wrap:wrap;gap:.25rem .7rem;font-size:.74rem;color:var(--muted);margin:.1rem 0 .3rem}.wp-kanji b{color:var(--text);font-weight:500;font-size:.9rem;margin-right:.15rem}
 .read-row{display:flex;justify-content:space-between;gap:.6rem;margin-top:.35rem;font-size:.8rem}.read-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.read-trend{margin-top:.5rem;font-family:var(--mono);color:var(--green);font-size:.8rem}
+.gp-here{margin:.2rem 0 .5rem;color:var(--muted)}.gp-here b{color:var(--accent);font-weight:500}
 .lot-list{display:flex;flex-wrap:wrap;gap:.3rem;margin:.5rem 0 .35rem}.lot-w{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.15rem .45rem;font-size:.75rem}.lot-w b{font-weight:500;font-size:.95rem}.lot-w small{color:var(--muted)}.lot-w i{font-style:normal;color:var(--green);letter-spacing:.05em;margin-left:.15rem}
 .gloss{margin:.6rem 0 .3rem;font-family:var(--sans);text-align:left}.gloss summary{cursor:pointer;font-size:.82rem;color:var(--accent)}.gloss summary small{color:var(--muted);font-size:.68rem}
 .gloss-row{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.45rem}
@@ -1177,7 +1178,7 @@ function partOf(t, prev) {
     if (b === 'がる') return ['il/elle montre que', ''];
     return ['', ''];
   }
-  if (t.pos === '動詞' && t.pos_detail_1 === '非自立') return AUX_VERB[b] || ['', ''];
+  if (t.pos === '動詞' && (t.pos_detail_1 === '非自立' || b === 'ある')) return AUX_VERB[b] || ['', ''];
   if (t.pos === '形容詞' && t.pos_detail_1 === '非自立') {
     if (b === 'いい' || b === 'よい') return prev === 'mo' ? ['permission (on peut)', 'perm'] : ['bien', ''];
     if (b === 'ほしい') return ['je veux que tu…', 'wantyou'];
@@ -1211,8 +1212,12 @@ function partOf(t, prev) {
   return ['', ''];
 }
 const isHead = t => (t.pos === '動詞' && t.pos_detail_1 === '自立') || (t.pos === '形容詞' && t.pos_detail_1 === '自立');
-const isLink = (t, prevOp, next) => {
+// verbes auxiliaires qui ne s'accrochent qu'après la forme en ‑te (行って【く】る, 食べて【み】る…) ; てる, ちゃう, とく contiennent déjà le て
+const NEED_TE = new Set(['いく', 'く', 'くる', 'みる', 'おく', 'くれる', 'あげる', 'もらう', 'しまう', 'いる', 'ある', 'くださる', 'いただく', 'やる', 'おる']);
+const isLink = (t, prevOp, next, prev) => {
   if (t.pos === '助動詞') return t.basic_form !== 'だ' || prevOp !== '' || t.conjugated_type === '特殊・タ';
+  if (t.pos === '動詞' && t.basic_form === 'ある' && !!prev && /^(て|で)$/.test(prev.surface_form) && prev.pos === '助詞') return true;   // 書いて【ある】 (ある est « autonome » pour kuromoji)
+  if (t.pos === '動詞' && t.pos_detail_1 === '非自立' && NEED_TE.has(t.basic_form)) return !!prev && /^(て|で)$/.test(prev.surface_form);   // sinon : mauvais découpage (ほいっと ≠ ほ + いく)
   if (t.pos === '動詞' && (t.pos_detail_1 === '接尾' || t.pos_detail_1 === '非自立')) return true;
   if (t.pos === '形容詞' && t.pos_detail_1 === '非自立') return true;
   if (t.pos === '助詞' && t.pos_detail_1 === '接続助詞' && /^(て|で|ば|ちゃ|じゃ|ては|では|たり|だり|ながら)$/.test(t.surface_form)) return true;
@@ -1235,10 +1240,12 @@ function deconjugate(tokens) {
     }
     if (!head) continue;
     const parts = []; let j = i + 1, prevOp = head.na ? 'na' : '';
-    while (j < tokens.length && isLink(tokens[j], prevOp, tokens[j + 1])) {
+    while (j < tokens.length && isLink(tokens[j], prevOp, tokens[j + 1], tokens[j - 1])) {
       const [label, op] = partOf(tokens[j], prevOp);
       parts.push({ s: tokens[j].surface_form, base: tokens[j].basic_form, label, op }); prevOp = op || prevOp; j++;
     }
+    // un mot coupé juste avant un allongement (いっせ|ー|の) est une interjection mal découpée, pas un verbe conjugué
+    if (tokens[j] && /^[ーｰ〜~]/.test(tokens[j].surface_form)) { i = j - 1; continue; }
     const imp = /^命令/.test(head.form);
     const before = tokens[i - (head.noun && !head.na ? 2 : 1)];
     if (parts.length || imp) out.push(Object.assign(head, { start, surface: head.s + parts.map(p => p.s).join(''), parts, imp, after: tokens[j] ? tokens[j].surface_form : '', byNi: !!(before && before.surface_form === 'に' && before.pos === '助詞') }));
@@ -1313,6 +1320,7 @@ const GP = [
   { id: 'passive', jp: '〜に 〜れる', fr: 'subir (passif)', lvl: 'N4', expl: 'Le passif avec に : « se faire… par quelqu\'un ». 先生に怒られた = je me suis fait gronder par le prof. Très courant en manga pour ce qu\'on subit.', ex: ['母に怒られた。', 'Je me suis fait gronder par ma mère.'] },
   { id: 'saseru', jp: '〜せる / 〜させる', fr: 'faire faire / laisser faire', lvl: 'N4', expl: 'Le causatif : faire faire ou laisser faire. 食べさせる = faire manger. Avec てください : 言わせてください = laissez-moi parler.', ex: ['俺にやらせて。', 'Laisse-moi faire.'] },
   { id: 'shimau', jp: '〜てしまう / 〜ちゃう', fr: 'complètement / malheureusement', lvl: 'N4', expl: 'Une action terminée complètement, ou faite sans le vouloir (regret). 食べてしまった / 食べちゃった = j\'ai tout mangé / j\'ai mangé (oups). ちゃう (じゃう) est la forme familière.', ex: ['財布を忘れちゃった。', 'J\'ai oublié mon portefeuille (zut).'] },
+  { id: 'tearu', jp: '〜てある', fr: 'c\'est (déjà) fait', lvl: 'N4', expl: 'Forme en ‑te + ある : quelque chose a été fait et le résultat est là. 書いてある = c\'est écrit, 置いてある = c\'est posé là. On parle du résultat, pas de qui l\'a fait.', ex: ['名前が書いてある。', 'Le nom est écrit dessus.'] },
   { id: 'teoku', jp: '〜ておく / 〜とく', fr: 'faire à l\'avance', lvl: 'N4', expl: 'Faire quelque chose à l\'avance, ou laisser dans un état. 買っておく = acheter à l\'avance. Familier : 〜とく (やっとく = je m\'en occupe).', ex: ['準備しておくね。', 'Je prépare ça à l\'avance.'] },
   { id: 'temiru', jp: '〜てみる', fr: 'essayer de faire', lvl: 'N4', expl: 'Forme en ‑te + みる : essayer de faire pour voir. 食べてみる = goûter, essayer de manger. やってみよう = essayons.', ex: ['ちょっと聞いてみる。', 'Je vais essayer de demander.'] },
   { id: 'tara', jp: '〜たら', fr: 'si / quand (après que)', lvl: 'N4', expl: 'Condition ou moment : « si » ou « quand / une fois que ». 雨が降ったら = s\'il pleut. 家に帰ったら = quand je serai rentré.', ex: ['終わったら電話して。', 'Appelle-moi quand tu as fini.'] },
@@ -1348,7 +1356,7 @@ const GP = [
   { id: 'shika', jp: '〜しか〜ない', fr: 'seulement (rien que)', lvl: 'N4', expl: 'しか + négation = « seulement, ne… que ». これしかない = il n\'y a que ça. やるしかない = il n\'y a plus qu\'à le faire.', ex: ['やるしかない！', 'Il n\'y a plus qu\'à y aller !'] },
 ];
 const GPI = Object.fromEntries(GP.map(g => [g.id, g]));
-const OP2G = { prog: 'teiru', past: 'ta', neg: 'nai', pol: 'masu', want: 'tai', please: 'kudasai', vol: 'you', caus: 'saseru', comp: 'shimau', prep: 'teoku', try: 'temiru',
+const OP2G = { prog: 'teiru', past: 'ta', neg: 'nai', pol: 'masu', want: 'tai', please: 'kudasai', vol: 'you', caus: 'saseru', comp: 'shimau', prep: 'teoku', res: 'tearu', try: 'temiru',
   must: 'nakereba', list: 'tari', while: 'nagara', seem: 'sou', hear: 'rashii', favor: 'kureru', come: 'tekuru', go: 'tekuru', too: 'sugiru', perm: 'temoii', mo: 'temo' };
 // renvoie [[id, extrait]] pour une bulle (jetons kuromoji)
 function detectGrammar(T) {
@@ -1758,7 +1766,8 @@ async function fillMeanings(v, force) {
   todo.forEach(w => { w.d = found.get(w.jp) || ''; if (w.d) n++; });
   await saveVol(v); return n;
 }
-const meaning = w => w.fr || w.d || '';
+// sens d'un mot : ta note d'abord ; pour les verbes courants écrits en kana (いう, する, いる…), le sens usuel plutôt que le 1er du dictionnaire (いう → dire, pas « se coiffer »)
+const meaning = w => w.fr || (!hasKanji(w.jp) && typeof BASIC_FR !== 'undefined' && BASIC_FR[w.jp]) || w.d || '';
 
 // ── Kanji de mes mangas ──
 let MK = null;
@@ -1881,7 +1890,7 @@ function mgramSource(c) {
         context: `📖 ${esc(v.title)}${v.pages.length > 1 ? ' · p.' + (x.p + 1) : ''}` + (S.phrases.help === 'off' || !b ? '' : mgramHelp(v, x.p, x.b, b, x.s, x.o)),
         visual: b && b.box && hasImages(v) ? el => fillCrop(el, v, { p: x.p, b: x.b }, 160) : null,
         after: `${a.g.jp} — ${a.g.fr}`,
-        explainHTML: `<span class="t">${esc(a.g.jp)} · ${esc(a.g.fr)}</span>${esc(a.g.expl)}<br><br><span class="jp">${esc(a.g.ex[0])}</span><br>${esc(a.g.ex[1])}<br><br><span class="muted">Vue ${a.n} fois dans ${kanjiVols(c.vol).length > 1 ? 'tes mangas' : 'ce tome'}.</span>${glossHTML(v, b)}`,
+        explainHTML: `<span class="t">${esc(a.g.jp)} · ${esc(a.g.fr)}</span>${x.s ? `<div class="gp-here">Dans cette bulle : <b class="jp">${esc(x.s)}</b>${x.s.replace(/^〜/, '') !== a.g.jp.replace(/^〜/, '').split(/[ /]/)[0] ? ' (une forme conjuguée de ' + esc(a.g.jp.split(' /')[0]) + ')' : ''}</div>` : ''}${esc(a.g.expl)}<br><br><span class="jp">${esc(a.g.ex[0])}</span><br>${esc(a.g.ex[1])}<br><br><span class="muted">Vue ${a.n} fois dans ${kanjiVols(c.vol).length > 1 ? 'tes mangas' : 'ce tome'}.</span>${glossHTML(v, b)}`,
         reveal: { main: a.g.fr, sub: a.g.jp } };
     } };
 }
@@ -2184,7 +2193,7 @@ function renderLibrary() {
     <div id="pasteBox" class="hidden"><textarea class="paste" id="pasteIn" placeholder="Colle du texte japonais ici (une page, des sous-titres, un chapitre)"></textarea>
       <input class="type-input" id="pasteTitle" placeholder="Titre (facultatif)" style="width:100%;font-size:.8rem;margin-bottom:.5rem"><button class="btn full" id="pasteGo">Analyser le texte</button></div>
     <div class="status" id="mStatus"></div>
-    ${LIB.some(v => (v.ana || 1) < ANA) ? `<div class="prepbar">🔄 Mise à jour de l'analyse : <b>la grammaire de tes tomes</b> (📗 dans 文 Phrases) et des mots courants (<span class="jp">今 前 上…</span>). Ta progression est gardée. <button class="small-btn ok" id="reana">Mettre à jour mes tomes</button></div>` : ''}
+    ${LIB.some(v => (v.ana || 1) < ANA) ? `<div class="prepbar">🔄 Mise à jour de l'analyse : <b>repérage de la grammaire amélioré</b> (📗 dans 文 Phrases). Ta progression est gardée. <button class="small-btn ok" id="reana">Mettre à jour mes tomes</button></div>` : ''}
     <div class="sec-title lib-title"><span>Ma bibliothèque</span>${LIB.some(hasImages) ? '<button class="small-btn" id="libBg">🎨 Fond</button>' : ''}</div>
     <div id="libList"></div>
     <div class="sec-title">Dictionnaire (pour le sens des mots)</div>
@@ -2266,7 +2275,7 @@ async function handleFiles(fileList, intoVol) {
 }
 
 // Version de l'analyse des mots : si elle change, les tomes déjà importés peuvent être réanalysés (progression gardée)
-const ANA = 3;   // 2 : 今, 前, 上, 中, 時, 方 ajoutés à la liste · 3 : grammaire repérée dans chaque bulle
+const ANA = 5;   // 2 : 今, 前, 上, 中, 時, 方 ajoutés à la liste · 3 : grammaire repérée dans chaque bulle · 4 : repérage corrigé (ほいっと ≠ 〜ていく) · 5 : 〜てある ajouté, interjections allongées (いっせーの) ignorées
 async function reanalyzeVolume(v, tk, onStep) {
   const pages = v.pages.map(p => ({ blocks: p.blocks.map(b => ({ text: blockText(b) })) }));
   const ws = await analysePagesAsync(tk, pages, onStep);
