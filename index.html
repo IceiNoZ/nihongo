@@ -323,6 +323,7 @@ body[data-tab="manga"] .card,body[data-tab="manga"] .wrow,body[data-tab="manga"]
 .gram-cov{margin-top:.55rem;font-size:.8rem}.gram-cov .small-btn{margin-left:.3rem;padding:.1rem .45rem;font-size:.68rem}.minibar.gram div{background:var(--gold)}
 .wp-kanji{display:flex;flex-wrap:wrap;gap:.25rem .7rem;font-size:.74rem;color:var(--muted);margin:.1rem 0 .3rem}.wp-kanji b{color:var(--text);font-weight:500;font-size:.9rem;margin-right:.15rem}
 .read-row{display:flex;justify-content:space-between;gap:.6rem;margin-top:.35rem;font-size:.8rem}.read-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.read-trend{margin-top:.5rem;font-family:var(--mono);color:var(--green);font-size:.8rem}
+.lot-list{display:flex;flex-wrap:wrap;gap:.3rem;margin:.5rem 0 .35rem}.lot-w{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.15rem .45rem;font-size:.75rem}.lot-w b{font-weight:500;font-size:.95rem}.lot-w small{color:var(--muted)}.lot-w i{font-style:normal;color:var(--green);letter-spacing:.05em;margin-left:.15rem}
 .gloss{margin:.6rem 0 .3rem;font-family:var(--sans);text-align:left}.gloss summary{cursor:pointer;font-size:.82rem;color:var(--accent)}.gloss summary small{color:var(--muted);font-size:.68rem}
 .gloss-row{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.45rem}
 .gl{display:flex;flex-direction:column;align-items:center;border:1px solid var(--border);border-radius:6px;padding:.15rem .35rem;background:var(--card);min-width:2rem;max-width:9rem}
@@ -551,6 +552,9 @@ function srsGet(k) { return SRS[k]; }
 function srsUpdate(k, ok) {
   const e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 });
   if (ok) { e.c++; e.lvl = Math.min(6, e.lvl + 1); } else { e.w++; e.lvl = e.lvl > 2 ? 1 : 0; }   // un mot « connu » le reste ; son niveau baisse et il revient en priorité
+  // jours différents où la réponse a été juste (lot de mots : su par cœur = 3 jours différents)
+  if (ok) { const d = dayKey(); if (e.lastOk !== d) { e.okd = (e.okd || 0) + 1; e.lastOk = d; if (e.okd === 3 && k.startsWith('m:') && window.onLotMastered) setTimeout(() => onLotMastered(k), 300); } }
+  else e.okd = Math.max(0, (e.okd || 0) - 1);
   delete e.del; const hd = histDay(), dev = typeof SYNC !== 'undefined' && SYNC.device || 'ici'; hd.r[dev] = (hd.r[dev] || 0) + 1;
   e.due = Date.now() + INTERVALS_H[e.lvl] * 3600e3; e.t = Date.now();
   saveSRS();
@@ -582,11 +586,12 @@ function dailyKeys() {
   fresh.sort((a, b) => (SRS[b].t || 0) - (SRS[a].t || 0));
   const st = lessonOfDay(), li = st && st.li != null ? st.li : null, gp = st && st.gp || null;
   const lesson = (li != null ? lessonKeys(li) : gp ? [gpKey(gp)] : []).filter(k => !SRS[k] && !due.includes(k));
-  return { due, fresh: fresh.slice(0, FRESH_MAX), lesson, li, gp };
+  const today = dayKey(), lot = typeof lotWords === 'function' ? lotWords(S.mots.vol, +(S.mots.size || 10)).lot.map(x => mKey(x.w)).filter(k => !due.includes(k) && !fresh.includes(k) && !(SRS[k] && SRS[k].lastOk === today)) : [];
+  return { due, fresh: fresh.slice(0, FRESH_MAX), lesson, li, gp, lot };
 }
 function updateDueBadge() {
   const b = $('dueBadge'), d = $('btnDaily'); if (!b) return;
-  const { due, fresh, lesson } = dailyKeys(), n = due.length + fresh.length + lesson.length;
+  const { due, fresh, lesson, lot } = dailyKeys(), n = due.length + fresh.length + lesson.length + lot.length;
   b.classList.add('hidden');
   if (d) { $('dailyN').textContent = n > 99 ? '99+' : n; d.classList.toggle('hidden', !n); }
 }
@@ -665,6 +670,7 @@ function getSource() {
   }
   if (t === 'mots') {
     if (S.mots.set === 'manga') return mangaKnownSource(S.mots);
+    if (S.mots.set === 'lot') return lotSource(S.mots);
     const c = S.mots, data = c.set === 'kata' ? DATA.kataWords : DATA.hiraWords;
     const key = x => x.jp + (x.jp === 'はな' || x.jp === 'かみ' ? '|' + x.fr : '');
     return { items: data, pool: data, name: c.set === 'kata' ? 'Mots katakana' : 'Mots hiragana', make: it => {
@@ -930,10 +936,17 @@ function renderControls() {
     if (c.set !== 'story') h += `<div class="row">${[['toFr', '漢 → sens'], ['toKanji', 'sens → 漢'], ['type', '✍ Taper la lecture']].map(([k, l]) => chip(l, c.dir === k, `kanji.dir:${k}`, 'sub')).join('')}</div>`;
   } else if (t === 'mots') {
     const c = S.mots;
-    h += `<div class="row">${chip('<span class="jp">ひらがな</span> Mots japonais', c.set === 'hira', 'mots.set:hira')}${chip('<span class="jp">カタカナ</span> Mots empruntés', c.set === 'kata', 'mots.set:kata')}${chip('漫画 Connus de mes mangas', c.set === 'manga', 'mots.set:manga')}</div>`;
-    if (c.set === 'manga' && LIB.length > 1) {
+    h += `<div class="row">${chip('<span class="jp">ひらがな</span> Mots japonais', c.set === 'hira', 'mots.set:hira')}${chip('<span class="jp">カタカナ</span> Mots empruntés', c.set === 'kata', 'mots.set:kata')}${chip('漫画 Connus de mes mangas', c.set === 'manga', 'mots.set:manga')}${chip('📦 Mon lot de mots', c.set === 'lot', 'mots.set:lot')}</div>`;
+    if ((c.set === 'manga' || c.set === 'lot') && LIB.length > 1) {
       const cur = kanjiVols(c.vol).length === 1 ? String(c.vol) : 'all', short = t => t.length > 22 ? t.slice(0, 21) + '…' : t;
       h += `<div class="row vol-chips">${chip('Tous les tomes', cur === 'all', 'mots.vol:all')}${LIB.map(v => chip(esc(short(v.title)), cur === String(v.id), 'mots.vol:' + v.id)).join('')}</div>`;
+    }
+    if (c.set === 'lot') {
+      const size = +(c.size || 10), L = lotWords(c.vol, size);
+      h += `<div class="row">${['5', '10', '20'].map(s => chip(s + ' mots', String(size) === s, 'mots.size:' + s, 'sub')).join('')}</div>`;
+      h += `<div class="tip" style="margin:.2rem 0 .5rem">${L.lot.length ? `Tes <b>${L.lot.length}</b> mots du moment, les plus fréquents de ${LIB.length > 1 && kanjiVols(c.vol).length === 1 ? 'ce tome' : 'tes mangas'}. Un mot est <b>su par cœur</b> quand tu l'as réussi <b>3 jours différents</b> (●●●), ou si tu le coches ✓ : il est alors remplacé par le suivant.
+        <div class="lot-list">${L.lot.map(x => `<span class="lot-w"><b class="jp">${esc(x.w.jp)}</b> <small>${esc(shortM(meaning(x.w)).split(/[;；,]/)[0])}</small> <i>${lotDots(x.w)}</i></span>`).join('')}</div>
+        <small>${L.mastered} mot${L.mastered > 1 ? 's' : ''} su${L.mastered > 1 ? 's' : ''} · encore ${Math.max(0, L.left - L.lot.length)} après ce lot. Ton lot est aussi dans la ▶ révision du jour.</small>` : 'Ton lot est vide : importe un manga et un dictionnaire dans 漫画 Manga.'}</div>`;
     }
     if (c.set === 'manga') { const n = new Set(), wk = new Set(); for (const v of kanjiVols(c.vol)) for (const w of v.words) if (!w.ign && wordState(w) === 'done') { n.add(w.jp); const e = SRS[mKey(w)]; if (e && e.lvl < 4) wk.add(w.jp); }
       if (LIB.length) h += `<div class="row">${chip(`Tous (${n.size})`, c.filt !== 'weak', 'mots.filt:all', 'sub')}${chip(`À consolider (${wk.size})`, c.filt === 'weak', 'mots.filt:weak', 'sub')}</div>`;
@@ -970,7 +983,7 @@ function summary() {
   else if (t === 'kanji') { const c = S.kanji;
     p = [c.set === 'manga' && kanjiVols(c.vol).length === 1 && LIB.length > 1 ? '漫画 ' + kanjiVols(c.vol)[0].title : { kanji: 'Kanji seuls', words: 'Mots en kanji', manga: '漫画 Mes mangas', story: '📖 Histoires' }[c.set], c.lvl === 'all' ? 'Tous niveaux' : c.lvl === '+' ? 'Au-delà N4' : c.lvl];
     if (c.set !== 'story') p.push({ toFr: '漢→sens', toKanji: 'sens→漢', type: '✍ Lecture' }[c.dir]); }
-  else if (t === 'mots') { const c = S.mots; p = [c.set === 'manga' ? (LIB.length > 1 && kanjiVols(c.vol).length === 1 ? '漫画 Connus · ' + kanjiVols(c.vol)[0].title : '漫画 Connus de mes mangas') + (c.filt === 'weak' ? ' · à consolider' : '') : c.set === 'kata' ? 'Mots empruntés' : 'Mots japonais', { toFr: '日本語→sens', toJp: 'sens→日本語', type: '✍ Lecture' }[c.dir]]; }
+  else if (t === 'mots') { const c = S.mots; p = [c.set === 'lot' ? `📦 Mon lot · ${c.size || 10} mots` : c.set === 'manga' ? (LIB.length > 1 && kanjiVols(c.vol).length === 1 ? '漫画 Connus · ' + kanjiVols(c.vol)[0].title : '漫画 Connus de mes mangas') + (c.filt === 'weak' ? ' · à consolider' : '') : c.set === 'kata' ? 'Mots empruntés' : 'Mots japonais', { toFr: '日本語→sens', toJp: 'sens→日本語', type: '✍ Lecture' }[c.dir]]; }
   else if (t === 'phrases') { const c = S.phrases; p = [{ simple: 'Phrases simples', mixed: 'Phrases mixtes', grammar: 'Grammaire N5', bubbles: '💬 Mes bulles', mgram: kanjiVols(c.vol).length === 1 && LIB.length > 1 ? '📗 Grammaire · ' + kanjiVols(c.vol)[0].title : '📗 Grammaire de mes mangas' }[c.set]];
     if (c.set === 'grammar') p.push({ all: 'Tout', particules: 'Particules', verbes: 'Verbes', structures: 'Adjectifs & structures' }[c.cat]); }
   if (t === 'phrases' && S.phrases.set === 'bubbles') p.push(G.flash + ` (${bubbleList().length})`);
@@ -1019,7 +1032,7 @@ function dailySource() {
   take('phrases', 'phrases', { set: 'mgram', vol: 'all' }, '📗 grammaire');
   Object.assign(S, JSON.parse(saved));
   if (typeof mangaSource === 'function') { const keep = [M.upTo, M.prep]; M.upTo = 0; M.prep = null; for (const v of LIB) subs.push({ s: mangaSource(v, 'flash'), tag: '漫画 ' + v.title }); [M.upTo, M.prep] = keep; }
-  const { due, fresh, lesson } = dailyKeys(), want = new Set([...due, ...fresh, ...lesson]), seen = new Set(), items = [];
+  const { due, fresh, lesson, lot } = dailyKeys(), want = new Set([...due, ...fresh, ...lesson, ...lot]), seen = new Set(), items = [];
   for (const { s, tag, noKh } of subs) {
     const kf = s.keyOf || (it => s.make(it).key);
     for (const it of s.items) { if (want.size === seen.size) break; let k; try { k = kf(it); } catch (e) { continue; } if (want.has(k) && !seen.has(k)) { seen.add(k); items.push({ s, it, k, tag, noKh }); } }
@@ -1032,8 +1045,8 @@ function dailySource() {
     make: x => { const q = x.s.make(x.it); if (!q.options && !q.accept) q.flash = true; q.tag = x.tag; q.noKh = !!x.noKh; return q; } };
 }
 function renderDaily() {
-  const { due, fresh, lesson, li, gp } = dailyKeys(), L = li != null ? DATA.grammar[li] : null, G = gp ? GPI[gp] : null;
-  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}${L ? ` · 📘 leçon ${li + 1}/${DATA.grammar.length}` : G ? ' · 📗 grammaire de tes mangas' : ''}</span></div></div>
+  const { due, fresh, lesson, li, gp, lot } = dailyKeys(), L = li != null ? DATA.grammar[li] : null, G = gp ? GPI[gp] : null;
+  $('controls').innerHTML = `<div class="dailybar"><button class="small-btn" id="dQuit">← Quitter</button><div><b>▶ Révision du jour</b><span>${due.length} à revoir${fresh.length ? ` · ${fresh.length} nouveau${fresh.length > 1 ? 'x' : ''} de tes lectures` : ''}${lot.length ? ` · 📦 ${lot.length} de ton lot` : ''}${L ? ` · 📘 leçon ${li + 1}/${DATA.grammar.length}` : G ? ' · 📗 grammaire de tes mangas' : ''}</span></div></div>
     ${L ? `<details class="lesson-day"${lesson.length ? ' open' : ''}><summary>📘 Leçon du jour : <b>${esc(L.point)}</b>${lesson.length ? '' : ' ✓'}</summary><div>${esc(L.explanation)}</div>${lesson.length ? `<small>Lis-la, puis les ${lesson.length} premières questions de la session la mettent en pratique.</small>` : '<small>Faite ! Elle revient dans tes révisions au bon moment. Nouvelle leçon demain.</small>'}</details>`
       : G ? (() => { const a = mangaGrammar('all').find(x => x.g.id === gp), bubs = a ? a.ex.slice(0, 2).map(x => { const b = x.v.pages[x.p] && x.v.pages[x.p].blocks[x.b]; return b ? `<div class="gp-bub"><span class="jp kh">${hlIn(blockText(b), x.s, x.o)}</span></div>` : ''; }).join('') : '';
           return `<details class="lesson-day"${lesson.length ? ' open' : ''}><summary>📗 Grammaire du jour : <b class="jp">${esc(G.jp)}</b> — ${esc(G.fr)}${lesson.length ? '' : ' ✓'}</summary><div>${esc(G.expl)}</div><div class="gp-ex"><span class="jp">${esc(G.ex[0])}</span><br>${esc(G.ex[1])}</div>${bubs ? `<small>Dans tes mangas${a ? ` (vue ${a.n} fois)` : ''} :</small>${bubs}` : ''}${lesson.length ? '<small>La première question de la session la met en pratique, sur une de tes bulles.</small>' : '<small>Faite ! Nouvelle forme demain, la plus fréquente de tes mangas que tu n\'as pas encore vue.</small>'}</details>`; })()
@@ -1761,6 +1774,33 @@ function mangaKanji(sel) {
   const outside = [...freq.keys()].filter(k => !known.has(k) && !KDIC.has(k)).sort((a, b) => freq.get(b) - freq.get(a));
   return MK = { sig, freq, inQuiz, outside };
 }
+// ── Mon lot de mots : les N mots les plus fréquents pas encore sus par cœur ; un mot su (3 jours différents, ou ✓) est remplacé ──
+const lotDone = w => { const e = SRS[mKey(w)]; return !!(e && (e.known || (e.okd || 0) >= 3)); };
+function lotWords(sel, size) {
+  const byJp = new Map();
+  for (const v of kanjiVols(sel)) for (const w of v.words) { if (w.ign) continue; const o = byJp.get(w.jp); if (o) o.n += w.n; else byJp.set(w.jp, { w, v, n: w.n }); }
+  const all = [...byJp.values()], cand = all.filter(x => meaning(x.w) && !lotDone(x.w)).sort((a, b) => b.n - a.n);
+  return { lot: cand.slice(0, size), left: cand.length, mastered: all.filter(x => lotDone(x.w)).length, all };
+}
+const lotDots = w => { const n = Math.min(3, (SRS[mKey(w)] || {}).okd || 0); return '●'.repeat(n) + '○'.repeat(3 - n); };
+function lotSource(c) {
+  const size = +(c.size || 10), L = lotWords(c.vol, size), items = L.lot, pool = L.all.filter(x => meaning(x.w));
+  return { items, pool, name: 'Mon lot de mots', keyOf: x => mKey(x.w),
+    empty: !LIB.length ? 'Importe un manga dans l\'onglet 漫画 Manga : ton lot se remplira avec ses mots les plus fréquents.' : !pool.length ? 'Importe un dictionnaire (漫画 Manga → Dictionnaire) : il faut le sens des mots pour les apprendre.' : 'Bravo, tu connais tous les mots de ce tome qui ont un sens 🎉',
+    make: x => {
+      const w = x.w, v = x.v, m = shortM(meaning(w)), ex = w.ex && w.ex[0], dir = c.dir === 'type' && !hasKanji(w.jp) ? 'toFr' : c.dir;
+      const ctx = ex && dir !== 'toJp' ? { context: hlExample(ex), visual: ex.b >= 0 && hasImages(v) ? el => fillCrop(el, v, ex, 150) : null } : {};
+      const after = `${w.jp}${hasKanji(w.jp) ? ' (' + w.kana + ')' : ''} — ${m}`;
+      if (dir === 'toJp') return { key: mKey(w), tag: '📦 ' + lotDots(w), prompt: m, pClass: 'fr', label: 'Quel mot ?', options: optionsFrom(x, pool, y => y.w.jp), optClass: 'jp', after, speakText: w.jp };
+      if (dir === 'type') return Object.assign({ key: mKey(w), tag: '📦 ' + lotDots(w), prompt: w.jp, pClass: w.jp.length > 4 ? 'md' : 'lg', label: 'Tape la lecture (romaji ou kana)', accept: new Set([normKana(w.kana)]), answerText: `${w.kana} · ${romajiOf(w.kana)} — ${m}`, speakText: w.jp }, ctx);
+      return Object.assign({ key: mKey(w), tag: '📦 ' + lotDots(w), prompt: w.jp, pClass: w.jp.length > 4 ? 'md' : 'lg', label: 'Que veut dire ce mot ?', options: optionsFrom(x, pool, y => shortM(meaning(y.w))), optClass: 'long', after, speakText: w.jp, reveal: { main: m, sub: w.kana } }, ctx);
+    } };
+}
+window.onLotMastered = k => {
+  const jp = k.slice(2), L = lotWords(S.mots.vol, +(S.mots.size || 10)), nx = L.lot[L.lot.length - 1];
+  if (typeof toast === 'function') toast(`🎉 ${jp} est su par cœur !${nx ? ' Nouveau mot dans ton lot : ' + nx.w.jp : ''}`);
+};
+
 // ── Mots déjà « connus » de mes tomes : pour vérifier ce qu'on a coché ✓ ──
 const shortM = m => (m || '').split(/[;；]/).slice(0, 2).join(' ;').trim();
 function mangaKnownSource(c) {
@@ -2968,7 +3008,7 @@ function openProgress() {
   for (const k in SRS) { const m = mastery(k); if (m >= 0) tot[m]++; if (isDue(k)) due++; }
   let h = `<div class="stats"><div class="stat"><b class="c-green">${tot[3]}</b><span>Maîtrisés</span></div><div class="stat"><b style="color:var(--cyan)">${tot[2] + tot[1]}</b><span>En cours</span></div>
     <div class="stat"><b class="c-red">${tot[0]}</b><span>À revoir</span></div><div class="stat"><b class="c-gold">${due}</b><span>À réviser maintenant</span></div></div>
-    ${(() => { const d = dailyKeys(), n = d.due.length + d.fresh.length + d.lesson.length; return n ? `<button class="btn full" id="pDaily" style="margin:.2rem 0 .8rem">▶ Révision du jour (${n})</button>` : ''; })()}
+    ${(() => { const d = dailyKeys(), n = d.due.length + d.fresh.length + d.lesson.length + d.lot.length; return n ? `<button class="btn full" id="pDaily" style="margin:.2rem 0 .8rem">▶ Révision du jour (${n})</button>` : ''; })()}
     ${evolutionHTML()}
     <div class="legend"><span><i style="background:var(--surface);border:1px solid var(--border)"></i>Jamais vu</span><span><i style="background:var(--red)"></i>À revoir</span><span><i style="background:var(--gold)"></i>En cours</span><span><i style="background:var(--cyan)"></i>Bon</span><span><i style="background:var(--green)"></i>Maîtrisé</span></div>`;
   if (LIB.length) {
