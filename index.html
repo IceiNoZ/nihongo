@@ -580,7 +580,7 @@ function mergeHist(r) {
 function saveSRS() { if (!store('nihongo_srs', SRS)) console.warn('Sauvegarde impossible'); histSnap(); if (window.syncSoon) syncSoon(); updateDueBadge(); }
 function srsGet(k) { return SRS[k]; }
 function srsUpdate(k, ok) {
-  const e = SRS[k] || (SRS[k] = { c: 0, w: 0, lvl: 0, due: 0 }), now = Date.now();
+  const e = SRS[k] || (SRS[k] = /^gp?:/.test(k) ? { c: 0, w: 0, lvl: 0, due: 0, fd: dayKey() } : { c: 0, w: 0, lvl: 0, due: 0 }), now = Date.now();
   if (e.c + e.w > 0 && dueNow(e, now)) e.rv = dayKey();   // une révision « due » faite aujourd'hui (pour la limite par jour)
   fsrsStep(e, ok, now);
   // une bonne réponse ne fait jamais baisser le niveau ; un mot « connu » raté le reste, mais son niveau baisse et il revient en priorité
@@ -599,20 +599,15 @@ const FRESH_MAX = 15;
 // Une nouvelle leçon de grammaire par jour, dans la révision du jour
 const lessonKeys = li => DATA.grammar[li].questions.map((_, qi) => `g:${li}:${qi}`);
 function lessonOfDay() {   // { li } : leçon N5 · { gp } : forme de grammaire de tes mangas (la plus fréquente pas encore vue)
-  const today = dayKey(); let st = load('nihongo_lesson', null);
-  const valid = st && st.day === today && (st.li != null ? !!DATA.grammar[st.li] : !!(st.gp && typeof GPI !== 'undefined' && GPI[st.gp]));
-  if (!valid) {
-    const li = DATA.grammar.findIndex((_, i) => !lessonKeys(i).some(k => SRS[k]));
-    if (li >= 0) st = { day: today, li };
-    else {
-      const next = typeof mangaGrammar === 'function' ? mangaGrammar('all').find(a => a.ex.length && !SRS[gpKey(a.g.id)]) : null;
-      if (!next) return null;
-      st = { day: today, gp: next.g.id };
-    }
-    store('nihongo_lesson', st);
-  }
-  return st;
+  // Déduite uniquement de ta progression synchronisée : la 1re leçon jamais commencée, ou celle commencée aujourd'hui
+  // (fd = jour de la 1re réponse). Ainsi l'iPhone et le PC tombent toujours sur la même leçon après une synchro.
+  const today = dayKey(), fresh = ks => !ks.some(k => SRS[k]) || ks.some(k => SRS[k] && SRS[k].fd === today);
+  const li = DATA.grammar.findIndex((_, i) => fresh(lessonKeys(i)));
+  if (li >= 0) return { day: today, li };
+  const next = typeof mangaGrammar === 'function' ? mangaGrammar('all').find(a => a.ex.length && fresh([gpKey(a.g.id)])) : null;
+  return next ? { day: today, gp: next.g.id } : null;
 }
+try { localStorage.removeItem('nihongo_lesson'); } catch (e) { }   // ancien choix propre à chaque appareil
 // urgence d'une carte : chance estimée de s'en souvenir maintenant (la plus basse passe en premier)
 const recallNow = (e, now) => fR(Math.max(0, (now - (e.lr || e.t || now)) / DAY_MS), e.s > 0 ? e.s : LEGACY_S[Math.max(0, Math.min(6, e.lvl | 0))]);
 let FAMS = null;
