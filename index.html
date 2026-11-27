@@ -1845,7 +1845,7 @@ function mangaKanji(sel) {
   return MK = { sig, freq, inQuiz, outside };
 }
 // ── Mon lot de mots : les N mots les plus fréquents pas encore sus par cœur ; un mot su (3 jours différents, ou ✓) est remplacé ──
-const lotDone = w => { const e = SRS[mKey(w)]; return !!(e && (e.known || (e.okd || 0) >= 3)); };
+const lotDone = w => { const e = SRS[mKey(w)]; return !!(e && (e.known || (e.okd || 0) >= 3)) || listState(w.jp) === 'done'; };   // déjà su ici ou dans les listes N5 / Kanji
 function lotWords(sel, size) {
   const byJp = new Map();
   for (const v of kanjiVols(sel)) for (const w of v.words) { if (w.ign) continue; const o = byJp.get(w.jp); if (o) o.n += w.n; else byJp.set(w.jp, { w, v, n: w.n }); }
@@ -2158,12 +2158,20 @@ async function fillGram(el, v, text) {
 // ── État ──
 let M = { vol: null, view: 'words', filter: 'learn', shown: 50, rev: 'flash', upTo: 0, furi: true, open: -1 };
 const mKey = w => 'm:' + w.jp;
+// ── Un mot travaillé dans les listes N5 / Kanji compte aussi dans tes tomes (même écriture exacte ; はな et かみ, ambigus, exclus) ──
+let LISTW = null;
+function listState(jp) {
+  if (!LISTW) { LISTW = new Map(); [DATA.kanjiWords, DATA.hiraWords, DATA.kataWords].forEach(l => l.forEach(x => { if (x.jp !== 'はな' && x.jp !== 'かみ') LISTW.set(x.jp, x.jp); })); }
+  const k = LISTW.get(jp), e = k && SRS[k]; if (!e || e.del) return null;
+  return e.known || e.lvl >= 4 ? 'done' : e.c + e.w > 0 ? 'learn' : null;
+}
 function wordState(w) {
   if (w.ign) return 'ign';
   const e = SRS[mKey(w)];
   if (e && (e.known || e.lvl >= 4)) return 'done';
+  const ls = listState(w.jp); if (ls === 'done') return 'done';
   if (e && (e.c + e.w > 0 || e.add)) return 'learn';
-  return 'new';
+  return ls || 'new';
 }
 function volStats(v) {
   const s = { new: 0, learn: 0, done: 0, ign: 0, tok: 0, tokKnown: 0 };
