@@ -2907,9 +2907,10 @@ if (!SYNC.device) {
 const syncOn = () => !!(SYNC.token && SYNC.repo);
 const repoPath = () => SYNC.repo.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, '').replace(/\/+$/, '');
 const PER_PART = 50;
-let syncTimer = null, syncRunning = null, remoteTree = null, syncMsg = '';
+let syncTimer = null, syncRunning = null, remoteTree = null, syncMsg = '', syncState = '';
 
 function setSyncState(state, msg) {
+  syncState = state;
   const b = $('btnSync'); if (b) b.dataset.state = state;
   if (msg) syncMsg = msg;
   const st = $('syncStatus'); if (st) { st.textContent = syncMsg; st.className = 'status' + (state === 'err' ? ' err' : ''); }
@@ -3108,6 +3109,11 @@ async function syncNow() {
         return true;
       } catch (e) {
         if (e.status === 422 && attempt < 2) { remoteTree = null; continue; }
+        if (isNetErr(e)) {   // connexion coupée (iPhone qui passe en arrière-plan, réseau qui change…) : on réessaie tout seul
+          remoteTree = null;
+          if (attempt < 2 && document.visibilityState === 'visible') { await new Promise(r => setTimeout(r, 2500 * (attempt + 1))); continue; }
+          console.warn('synchro (réseau)', e); syncRetryLater(); return false;
+        }
         console.warn('synchro', e); setSyncState('err', syncErrMsg(e)); return false;
       }
     }
@@ -3122,12 +3128,24 @@ function syncErrMsg(e) {
   if (e.status === 403) return 'GitHub refuse l\'accès (droits du token ou trop de requêtes, réessaie plus tard).';
   return 'Erreur de synchro : ' + (e.message || e.status || e);
 }
+// erreurs « réseau » : Safari dit « Load failed », Chrome « Failed to fetch » (aucune réponse de GitHub)
+const isNetErr = e => !!e && !e.status && /load failed|failed to fetch|networkerror|network connection|connexion|internet|aborted|timed out|lent/i.test(String(e.message || e));
+let syncRetry = null;
+function syncRetryLater() {
+  setSyncState('pending', 'Connexion interrompue : la synchro reprendra toute seule.');
+  clearTimeout(syncRetry); syncRetry = setTimeout(() => { syncRetry = null; if (document.visibilityState === 'visible') syncNow(); else syncRetry = 'visible'; }, 45000);
+}
 function syncSoon() {
   if (!syncOn() || syncRunning) return;
   clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 20000);
   setSyncState('pending', 'Modifications en attente de synchro…');
 }
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && syncTimer) syncNow(); });
+document.addEventListener('visibilitychange', () => {
+  if (!syncOn()) return;
+  if (document.visibilityState === 'hidden') { if (syncTimer) syncNow(); return; }
+  // retour sur le site : reprendre une synchro ratée, envoyer ce qui attend, ou récupérer ce que l'autre appareil a fait
+  if (syncRetry || syncTimer || syncState === 'err' || Date.now() - (SYNC.last || 0) > 3 * 60e3) { clearTimeout(syncRetry); syncRetry = null; setTimeout(syncNow, 800); }
+});
 window.addEventListener('online', () => syncOn() && syncNow());
 
 // ── Écran de synchro ──
